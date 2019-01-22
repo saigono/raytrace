@@ -1,4 +1,4 @@
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
 pub struct Vec3(pub f32, pub f32, pub f32);
 
 impl Vec3 {
@@ -12,6 +12,10 @@ impl Vec3 {
 
     pub fn unit(vector: &Vec3) -> Vec3 {
         vector / vector.length()
+    }
+
+    pub fn dot(a: &Vec3, b: &Vec3) -> f32 {
+        a.0 * b.0 + a.1 * b.1 + a.2 * b.2
     }
 }
 

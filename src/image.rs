@@ -6,6 +6,7 @@ use std::path::Path;
 
 use png::HasParameters;
 
+#[allow(dead_code)]
 pub fn write_to_png(path_to_file: &str, data: &mut [u8], width: u32, height: u32) {
     let path = Path::new(path_to_file);
     let display = path.display();
@@ -23,6 +24,7 @@ pub fn write_to_png(path_to_file: &str, data: &mut [u8], width: u32, height: u32
     writer.write_image_data(&data).unwrap();
 }
 
+#[allow(dead_code)]
 pub fn write_to_ppm(path_to_file: &str, data: &mut [u8], width: u32, height: u32) {
     let path = Path::new(path_to_file);
     let display = path.display();

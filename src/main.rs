@@ -1,25 +1,7 @@
 mod image;
-mod vec3;
+mod linalg;
 
-use vec3::Vec3;
-
-struct Ray {
-    origin: Vec3,
-    direction: Vec3,
-}
-
-impl Ray {
-    fn new(origin: Vec3, direction: Vec3) -> Ray {
-        Ray {
-            origin: origin,
-            direction: direction,
-        }
-    }
-
-    fn point_at_parameter(&self, t: f32) -> Vec3 {
-        self.origin + t * self.direction
-    }
-}
+use linalg::{Ray, Vec3};
 
 fn color(r: &Ray) -> Vec3 {
     let t = hit_sphere(&Vec3(0.0, 0.0, -1.0), 0.5, &r);
@@ -33,15 +15,11 @@ fn color(r: &Ray) -> Vec3 {
     }
 }
 
-fn dot(a: &Vec3, b: &Vec3) -> f32 {
-    a.0 * b.0 + a.1 * b.1 + a.2 * b.2
-}
-
 fn hit_sphere(center: &Vec3, radius: f32, r: &Ray) -> f32 {
     let oc = &r.origin - center;
-    let a = dot(&r.direction, &r.direction);
-    let b = 2.0 * dot(&oc, &r.direction);
-    let c = dot(&oc, &oc) - radius * radius;
+    let a = Vec3::dot(&r.direction, &r.direction);
+    let b = 2.0 * Vec3::dot(&oc, &r.direction);
+    let c = Vec3::dot(&oc, &oc) - radius * radius;
     let discriminant = b * b - 4.0 * a * c;
     if discriminant < 0.0 {
         -1.0
