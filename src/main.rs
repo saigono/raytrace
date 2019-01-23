@@ -32,8 +32,8 @@ fn color(r: &Ray, world: &Hitable, depth: i32) -> Vec3 {
 
 fn main() {
     let mut data: Vec<u8> = Vec::new();
-    let width = 400;
-    let height = 200;
+    let width = 300;
+    let height = 150;
     let n_samples = 100;
 
     let camera = camera::Camera::new();
@@ -52,12 +52,12 @@ fn main() {
     world.push(Sphere::new(
         Vec3(1.0, 0.0, -1.0),
         0.5,
-        Rc::new(Metal::new(Vec3::new(0.8, 0.6, 0.2))),
+        Rc::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3)),
     ));
     world.push(Sphere::new(
         Vec3(-1.0, 0.0, -1.0),
         0.5,
-        Rc::new(Metal::new(Vec3::new(0.8, 0.8, 0.8))),
+        Rc::new(Metal::new(Vec3::new(0.8, 0.8, 0.8), 1.0)),
     ));
 
     let mut rng = rand::thread_rng();
