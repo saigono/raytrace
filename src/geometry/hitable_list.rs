@@ -1,6 +1,5 @@
 use super::hitable::{HitRecord, Hitable};
-use super::material::Lambertian;
-use crate::linalg::{Ray, Vec3};
+use crate::linalg::Ray;
 
 pub struct HitableList {
     pub list: std::vec::Vec<Box<Hitable>>,
@@ -22,26 +21,20 @@ impl HitableList {
 }
 
 impl Hitable for HitableList {
-    fn hit(&self, r: &Ray, t_min: f32, t_max: f32, rec: &mut HitRecord) -> bool {
-        let mut temp_rec = HitRecord::new(
-            0.0,
-            Vec3::new(0.0, 0.0, 0.0),
-            Vec3::new(0.0, 0.0, 0.0),
-            Box::new(Lambertian::new(Vec3(1.0, 1.0, 1.0))),
-        );
-        let mut hit_anything = false;
+    fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let mut closest_so_far = t_max;
+        let mut rec: Option<HitRecord> = None;
 
         for hitable in self.list.iter() {
-            if hitable.hit(r, t_min, closest_so_far, &mut temp_rec) {
-                hit_anything = true;
-                closest_so_far = temp_rec.t;
-                rec.t = temp_rec.t;
-                rec.p = temp_rec.p;
-                rec.normal = temp_rec.normal;
+            match hitable.hit(r, t_min, closest_so_far) {
+                Some(x) => {
+                    closest_so_far = x.t;
+                    rec = Some(x);
+                }
+                None => {}
             }
         }
 
-        hit_anything
+        rec
     }
 }
