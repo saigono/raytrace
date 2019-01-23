@@ -54,6 +54,11 @@ fn main() {
         0.5,
         Rc::new(Metal::new(Vec3::new(0.8, 0.6, 0.2))),
     ));
+    world.push(Sphere::new(
+        Vec3(-1.0, 0.0, -1.0),
+        0.5,
+        Rc::new(Metal::new(Vec3::new(0.8, 0.8, 0.8))),
+    ));
 
     let mut rng = rand::thread_rng();
 
@@ -71,9 +76,9 @@ fn main() {
             col = col / (n_samples as f32);
             // let col = v * Vec3(1.0, 1.0, 1.0);
 
-            let r = (255.99 * col.0) as u8;
-            let g = (255.99 * col.1) as u8;
-            let b = (255.99 * col.2) as u8;
+            let r = (255.99 * col.0.sqrt()) as u8;
+            let g = (255.99 * col.1.sqrt()) as u8;
+            let b = (255.99 * col.2.sqrt()) as u8;
             data.push(r);
             data.push(g);
             data.push(b);
