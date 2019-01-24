@@ -75,3 +75,70 @@ impl Material for Metal {
         }
     }
 }
+
+fn refract(v: &Vec3, n: &Vec3, ni_over_nt: f32) -> Option<Vec3> {
+    let uv = Vec3::unit(v);
+    let dt = Vec3::dot(&uv, n);
+    let discriminant = 1.0 - ni_over_nt * ni_over_nt * (1.0 - dt * dt);
+    if discriminant > 0.0 {
+        Some(ni_over_nt * (uv - *n * dt) - *n * discriminant.sqrt())
+    } else {
+        None
+    }
+}
+
+pub struct Dielectric {
+    ref_idx: f32,
+}
+
+impl Dielectric {
+    pub fn new(ref_idx: f32) -> Self {
+        Self { ref_idx: ref_idx }
+    }
+}
+
+fn schlick(cosine: f32, ref_idx: f32) -> f32 {
+    let r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
+    r0 * r0
+        + (1.0 - r0 * r0)
+            * (1.0 - cosine)
+            * (1.0 - cosine)
+            * (1.0 - cosine)
+            * (1.0 - cosine)
+            * (1.0 - cosine)
+}
+
+impl Material for Dielectric {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Vec3, Ray)> {
+        let outward_normal: Vec3;
+        let reflected = reflect(&r_in.direction, &rec.normal);
+
+        let ni_over_nt: f32;
+        let attenuation = Vec3(1.0, 1.0, 1.0);
+
+        let reflect_prob: f32;
+        let cosine: f32;
+
+        if Vec3::dot(&r_in.direction, &rec.normal) > 0.0 {
+            outward_normal = -1.0 * rec.normal;
+            ni_over_nt = self.ref_idx;
+            cosine =
+                self.ref_idx * Vec3::dot(&r_in.direction, &rec.normal) / r_in.direction.length();
+        } else {
+            outward_normal = 1.0 * rec.normal;
+            ni_over_nt = 1.0 / self.ref_idx;
+            cosine = -Vec3::dot(&r_in.direction, &rec.normal) / r_in.direction.length();
+        }
+        match refract(&r_in.direction, &outward_normal, ni_over_nt) {
+            Some(refracted) => {
+                reflect_prob = schlick(cosine, self.ref_idx);
+                let probe = rand::random::<f32>();
+                if probe < reflect_prob {
+                    return Some((attenuation, Ray::new(rec.p, refracted)));
+                }
+            }
+            None => {}
+        }
+        Some((attenuation, Ray::new(rec.p, reflected)))
+    }
+}

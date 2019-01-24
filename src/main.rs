@@ -3,7 +3,7 @@ mod geometry;
 mod image;
 mod linalg;
 
-use geometry::{Hitable, HitableList, Lambertian, Metal, Sphere};
+use geometry::{Dielectric, Hitable, HitableList, Lambertian, Metal, Sphere};
 use linalg::{Ray, Vec3};
 use rand::Rng;
 use std::rc::Rc;
@@ -57,9 +57,13 @@ fn main() {
     world.push(Sphere::new(
         Vec3(-1.0, 0.0, -1.0),
         0.5,
-        Rc::new(Metal::new(Vec3::new(0.8, 0.8, 0.8), 1.0)),
+        Rc::new(Dielectric::new(1.5)),
     ));
-
+    world.push(Sphere::new(
+        Vec3(-1.0, 0.0, -1.0),
+        -0.45,
+        Rc::new(Dielectric::new(1.5)),
+    ));
     let mut rng = rand::thread_rng();
 
     for x in (0..height).rev() {
@@ -74,7 +78,6 @@ fn main() {
                 col += color(&r, &world, 0);
             }
             col = col / (n_samples as f32);
-            // let col = v * Vec3(1.0, 1.0, 1.0);
 
             let r = (255.99 * col.0.sqrt()) as u8;
             let g = (255.99 * col.1.sqrt()) as u8;
