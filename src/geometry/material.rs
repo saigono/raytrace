@@ -132,8 +132,7 @@ impl Material for Dielectric {
         match refract(&r_in.direction, &outward_normal, ni_over_nt) {
             Some(refracted) => {
                 reflect_prob = schlick(cosine, self.ref_idx);
-                let probe = rand::random::<f32>();
-                if probe < reflect_prob {
+                if reflect_prob < rand::random::<f32>() {
                     return Some((attenuation, Ray::new(rec.p, refracted)));
                 }
             }
