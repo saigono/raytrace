@@ -36,12 +36,18 @@ fn main() {
     let height = 150;
     let n_samples = 100;
 
+    let look_from = Vec3(3.0, 3.0, 2.0);
+    let look_at = Vec3(0.0, 0.0, -1.0);
+    let dist_to_focus = (look_from - look_at).length();
+
     let camera = camera::Camera::new(
-        Vec3::new(-2.0, 2.0, 1.0),
-        Vec3::new(0.0, 0.0, -1.0),
+        look_from,
+        look_at,
         Vec3::new(0.0, 1.0, 0.0),
         30.0,
         (width as f32) / (height as f32),
+        2.0,
+        dist_to_focus,
     );
 
     let mut world = HitableList::new();

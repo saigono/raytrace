@@ -39,6 +39,14 @@ impl std::ops::Add for Vec3 {
     }
 }
 
+impl std::ops::Add for &Vec3 {
+    type Output = Vec3;
+
+    fn add(self, other: &Vec3) -> Vec3 {
+        Vec3(self.0 + other.0, self.1 + other.1, self.2 + other.2)
+    }
+}
+
 impl std::ops::AddAssign for Vec3 {
     fn add_assign(&mut self, other: Vec3) {
         self.0 += other.0;
