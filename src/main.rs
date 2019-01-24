@@ -9,7 +9,7 @@ use rand::Rng;
 use std::rc::Rc;
 
 fn color(r: &Ray, world: &Hitable, depth: i32) -> Vec3 {
-    match world.hit(r, 0.001, 10000.0) {
+    match world.hit(r, 0.001, std::f32::MAX) {
         Some(rec) => {
             if depth < 50 {
                 match rec.mat.scatter(r, &rec) {
@@ -36,34 +36,46 @@ fn main() {
     let height = 150;
     let n_samples = 100;
 
-    let camera = camera::Camera::new();
+    let camera = camera::Camera::new(90.0, 2.0);
 
     let mut world = HitableList::new();
+    // world.push(Sphere::new(
+    //     Vec3(0.0, 0.0, -1.0),
+    //     0.5,
+    //     Rc::new(Lambertian::new(Vec3::new(0.8, 0.3, 0.3))),
+    // ));
+    // world.push(Sphere::new(
+    //     Vec3(0.0, -100.5, -1.0),
+    //     100.0,
+    //     Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0))),
+    // ));
+    // world.push(Sphere::new(
+    //     Vec3(1.0, 0.0, -1.0),
+    //     0.5,
+    //     Rc::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3)),
+    // ));
+    // world.push(Sphere::new(
+    //     Vec3(-1.0, 0.0, -1.0),
+    //     0.5,
+    //     Rc::new(Dielectric::new(1.5)),
+    // ));
+    // world.push(Sphere::new(
+    //     Vec3(-1.0, 0.0, -1.0),
+    //     -0.45,
+    //     Rc::new(Dielectric::new(1.5)),
+    // ));
+    let R = std::f32::consts::FRAC_PI_4.cos();
     world.push(Sphere::new(
-        Vec3(0.0, 0.0, -1.0),
-        0.5,
-        Rc::new(Lambertian::new(Vec3::new(0.8, 0.3, 0.3))),
+        Vec3::new(-R, 0.0, -1.0),
+        R,
+        Rc::new(Lambertian::new(Vec3::new(1.0, 0.0, 0.0))),
     ));
     world.push(Sphere::new(
-        Vec3(0.0, -100.5, -1.0),
-        100.0,
-        Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0))),
+        Vec3::new(R, 0.0, -1.0),
+        R,
+        Rc::new(Lambertian::new(Vec3::new(0.0, 0.0, 1.0))),
     ));
-    world.push(Sphere::new(
-        Vec3(1.0, 0.0, -1.0),
-        0.5,
-        Rc::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3)),
-    ));
-    world.push(Sphere::new(
-        Vec3(-1.0, 0.0, -1.0),
-        0.5,
-        Rc::new(Dielectric::new(1.5)),
-    ));
-    world.push(Sphere::new(
-        Vec3(-1.0, 0.0, -1.0),
-        -0.45,
-        Rc::new(Dielectric::new(1.5)),
-    ));
+
     let mut rng = rand::thread_rng();
 
     for x in (0..height).rev() {
