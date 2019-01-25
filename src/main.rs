@@ -29,6 +29,68 @@ fn color(r: &Ray, world: &Hitable, depth: i32) -> Vec3 {
         }
     }
 }
+fn random_scene() -> HitableList {
+    let mut world = HitableList::new();
+    world.push(Sphere::new(
+        Vec3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        Rc::new(Lambertian::new(Vec3(0.5, 0.5, 0.5))),
+    ));
+    let mut rng = rand::thread_rng();
+    for a in -11..11 {
+        for b in -11..11 {
+            let choose_mat: f32 = rng.gen();
+            let off_x: f32 = rng.gen();
+            let off_z: f32 = rng.gen();
+            let center = Vec3::new((a as f32) + 0.9 * off_x, 0.2, (b as f32) + 0.9 * off_z);
+            if (center - Vec3(4.0, 0.2, 0.0)).length() > 0.9 {
+                if choose_mat < 0.8 {
+                    world.push(Sphere::new(
+                        center,
+                        0.2,
+                        Rc::new(Lambertian::new(Vec3::new(
+                            rng.gen::<f32>() * rng.gen::<f32>(),
+                            rng.gen::<f32>() * rng.gen::<f32>(),
+                            rng.gen::<f32>() * rng.gen::<f32>(),
+                        ))),
+                    ));
+                } else if choose_mat < 0.95 {
+                    world.push(Sphere::new(
+                        center,
+                        0.2,
+                        Rc::new(Metal::new(
+                            Vec3::new(
+                                0.5 * (1.0 + rng.gen::<f32>()),
+                                0.5 * (1.0 + rng.gen::<f32>()),
+                                0.5 * (1.0 + rng.gen::<f32>()),
+                            ),
+                            0.5 * (1.0 + rng.gen::<f32>()),
+                        )),
+                    ));
+                } else {
+                    world.push(Sphere::new(center, 0.2, Rc::new(Dielectric::new(1.5))));
+                }
+            }
+        }
+    }
+
+    world.push(Sphere::new(
+        Vec3::new(0.0, 1.0, 0.0),
+        1.0,
+        Rc::new(Dielectric::new(1.5)),
+    ));
+    world.push(Sphere::new(
+        Vec3::new(-4.0, 1.0, 0.0),
+        1.0,
+        Rc::new(Lambertian::new(Vec3::new(0.4, 0.2, 0.1))),
+    ));
+    world.push(Sphere::new(
+        Vec3::new(4.0, 1.0, 0.0),
+        1.0,
+        Rc::new(Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0)),
+    ));
+    world
+}
 
 fn main() {
     let mut data: Vec<u8> = Vec::new();
@@ -36,46 +98,46 @@ fn main() {
     let height = 150;
     let n_samples = 100;
 
-    let look_from = Vec3(3.0, 3.0, 2.0);
-    let look_at = Vec3(0.0, 0.0, -1.0);
-    let dist_to_focus = (look_from - look_at).length();
+    let look_from = Vec3(13.0, 2.0, 3.0);
+    let look_at = Vec3(0.0, 0.0, 0.0);
+    let dist_to_focus = 10.0;
 
     let camera = camera::Camera::new(
         look_from,
         look_at,
         Vec3::new(0.0, 1.0, 0.0),
-        30.0,
+        20.0,
         (width as f32) / (height as f32),
-        2.0,
+        0.1,
         dist_to_focus,
     );
 
-    let mut world = HitableList::new();
-    world.push(Sphere::new(
-        Vec3(0.0, 0.0, -1.0),
-        0.5,
-        Rc::new(Lambertian::new(Vec3::new(0.1, 0.1, 0.9))),
-    ));
-    world.push(Sphere::new(
-        Vec3(0.0, -100.5, -1.0),
-        100.0,
-        Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0))),
-    ));
-    world.push(Sphere::new(
-        Vec3(1.0, 0.0, -1.0),
-        0.5,
-        Rc::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3)),
-    ));
-    world.push(Sphere::new(
-        Vec3(-1.0, 0.0, -1.0),
-        0.5,
-        Rc::new(Dielectric::new(1.5)),
-    ));
-    world.push(Sphere::new(
-        Vec3(-1.0, 0.0, -1.0),
-        -0.45,
-        Rc::new(Dielectric::new(1.5)),
-    ));
+    let world = random_scene();
+    // world.push(Sphere::new(
+    //     Vec3(0.0, 0.0, -1.0),
+    //     0.5,
+    //     Rc::new(Lambertian::new(Vec3::new(0.1, 0.1, 0.9))),
+    // ));
+    // world.push(Sphere::new(
+    //     Vec3(0.0, -100.5, -1.0),
+    //     100.0,
+    //     Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0))),
+    // ));
+    // world.push(Sphere::new(
+    //     Vec3(1.0, 0.0, -1.0),
+    //     0.5,
+    //     Rc::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3)),
+    // ));
+    // world.push(Sphere::new(
+    //     Vec3(-1.0, 0.0, -1.0),
+    //     0.5,
+    //     Rc::new(Dielectric::new(1.5)),
+    // ));
+    // world.push(Sphere::new(
+    //     Vec3(-1.0, 0.0, -1.0),
+    //     -0.45,
+    //     Rc::new(Dielectric::new(1.5)),
+    // ));
     // let R = std::f32::consts::FRAC_PI_4.cos();
     // world.push(Sphere::new(
     //     Vec3::new(-R, 0.0, -1.0),
