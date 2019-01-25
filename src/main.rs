@@ -3,7 +3,7 @@ mod geometry;
 mod image;
 mod linalg;
 
-use geometry::{Dielectric, Hitable, HitableList, Lambertian, Metal, Sphere};
+use geometry::{Dielectric, Hitable, HitableList, Lambertian, Metal, MovingSphere, Sphere};
 use linalg::{Ray, Vec3};
 use rand::Rng;
 use std::rc::Rc;
@@ -45,8 +45,11 @@ fn random_scene() -> HitableList {
             let center = Vec3::new((a as f32) + 0.9 * off_x, 0.2, (b as f32) + 0.9 * off_z);
             if (center - Vec3(4.0, 0.2, 0.0)).length() > 0.9 {
                 if choose_mat < 0.8 {
-                    world.push(Sphere::new(
+                    world.push(MovingSphere::new(
                         center,
+                        center + Vec3(0.0, 0.5 * rng.gen::<f32>(), 0.0),
+                        0.0,
+                        1.0,
                         0.2,
                         Rc::new(Lambertian::new(Vec3::new(
                             rng.gen::<f32>() * rng.gen::<f32>(),
@@ -110,6 +113,8 @@ fn main() {
         (width as f32) / (height as f32),
         0.1,
         dist_to_focus,
+        0.0,
+        1.0,
     );
 
     let world = random_scene();
