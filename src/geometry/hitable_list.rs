@@ -1,8 +1,11 @@
+use super::aabb::{surrounding_box, AABB};
 use super::hitable::{HitRecord, Hitable};
 use crate::linalg::Ray;
 
+use std::rc::Rc;
+
 pub struct HitableList {
-    pub list: std::vec::Vec<Box<Hitable>>,
+    pub list: std::vec::Vec<Rc<Hitable>>,
     pub size: usize,
 }
 
@@ -14,8 +17,9 @@ impl HitableList {
         }
     }
 
-    pub fn push<S: Hitable + 'static>(&mut self, hitable: S) -> &mut Self {
-        self.list.push(Box::new(hitable));
+    pub fn push(&mut self, hitable: Rc<Hitable>) -> &mut Self {
+        self.list.push(hitable.clone());
+        self.size += 1;
         self
     }
 }
@@ -36,5 +40,31 @@ impl Hitable for HitableList {
         }
 
         rec
+    }
+
+    fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
+        if self.list.len() < 1 {
+            return None;
+        }
+        let mut _box: AABB;
+        match self.list[0].bounding_box(t0, t1) {
+            Some(b) => {
+                _box = b;
+            }
+            None => {
+                return None;
+            }
+        }
+        for i in 1..self.list.len() {
+            match self.list[i].bounding_box(t0, t1) {
+                Some(b) => {
+                    _box = surrounding_box(&b, &_box);
+                }
+                None => {
+                    return None;
+                }
+            }
+        }
+        Some(_box)
     }
 }

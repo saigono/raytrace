@@ -1,3 +1,4 @@
+use super::aabb::{surrounding_box, AABB};
 use super::hitable::{HitRecord, Hitable};
 use super::material::Material;
 use crate::linalg::{Ray, Vec3};
@@ -52,6 +53,13 @@ impl Hitable for Sphere {
             }
         }
         None
+    }
+
+    fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
+        Some(AABB::new(
+            &(self.center - Vec3::new(self.radius, self.radius, self.radius)),
+            &(self.center + Vec3::new(self.radius, self.radius, self.radius)),
+        ))
     }
 }
 
@@ -122,5 +130,17 @@ impl Hitable for MovingSphere {
             }
         }
         None
+    }
+
+    fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
+        let start_box = AABB::new(
+            &(self.center_start - Vec3::new(self.radius, self.radius, self.radius)),
+            &(self.center_start + Vec3::new(self.radius, self.radius, self.radius)),
+        );
+        let end_box = AABB::new(
+            &(self.center_end - Vec3::new(self.radius, self.radius, self.radius)),
+            &(self.center_end + Vec3::new(self.radius, self.radius, self.radius)),
+        );
+        Some(surrounding_box(&start_box, &end_box))
     }
 }

@@ -3,6 +3,7 @@ mod geometry;
 mod image;
 mod linalg;
 
+use geometry::bvh_node::BVHNode;
 use geometry::{Dielectric, Hitable, HitableList, Lambertian, Metal, MovingSphere, Sphere};
 use linalg::{Ray, Vec3};
 use rand::Rng;
@@ -29,13 +30,13 @@ fn color(r: &Ray, world: &Hitable, depth: i32) -> Vec3 {
         }
     }
 }
-fn random_scene() -> HitableList {
+fn random_scene() -> BVHNode {
     let mut world = HitableList::new();
-    world.push(Sphere::new(
+    world.push(Rc::new(Sphere::new(
         Vec3::new(0.0, -1000.0, 0.0),
         1000.0,
         Rc::new(Lambertian::new(Vec3(0.5, 0.5, 0.5))),
-    ));
+    )));
     let mut rng = rand::thread_rng();
     for a in -11..11 {
         for b in -11..11 {
@@ -45,20 +46,17 @@ fn random_scene() -> HitableList {
             let center = Vec3::new((a as f32) + 0.9 * off_x, 0.2, (b as f32) + 0.9 * off_z);
             if (center - Vec3(4.0, 0.2, 0.0)).length() > 0.9 {
                 if choose_mat < 0.8 {
-                    world.push(MovingSphere::new(
+                    world.push(Rc::new(Sphere::new(
                         center,
-                        center + Vec3(0.0, 0.5 * rng.gen::<f32>(), 0.0),
-                        0.0,
-                        1.0,
                         0.2,
                         Rc::new(Lambertian::new(Vec3::new(
                             rng.gen::<f32>() * rng.gen::<f32>(),
                             rng.gen::<f32>() * rng.gen::<f32>(),
                             rng.gen::<f32>() * rng.gen::<f32>(),
                         ))),
-                    ));
+                    )));
                 } else if choose_mat < 0.95 {
-                    world.push(Sphere::new(
+                    world.push(Rc::new(Sphere::new(
                         center,
                         0.2,
                         Rc::new(Metal::new(
@@ -69,30 +67,34 @@ fn random_scene() -> HitableList {
                             ),
                             0.5 * (1.0 + rng.gen::<f32>()),
                         )),
-                    ));
+                    )));
                 } else {
-                    world.push(Sphere::new(center, 0.2, Rc::new(Dielectric::new(1.5))));
+                    world.push(Rc::new(Sphere::new(
+                        center,
+                        0.2,
+                        Rc::new(Dielectric::new(1.5)),
+                    )));
                 }
             }
         }
     }
 
-    world.push(Sphere::new(
+    world.push(Rc::new(Sphere::new(
         Vec3::new(0.0, 1.0, 0.0),
         1.0,
         Rc::new(Dielectric::new(1.5)),
-    ));
-    world.push(Sphere::new(
+    )));
+    world.push(Rc::new(Sphere::new(
         Vec3::new(-4.0, 1.0, 0.0),
         1.0,
         Rc::new(Lambertian::new(Vec3::new(0.4, 0.2, 0.1))),
-    ));
-    world.push(Sphere::new(
+    )));
+    world.push(Rc::new(Sphere::new(
         Vec3::new(4.0, 1.0, 0.0),
         1.0,
         Rc::new(Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0)),
-    ));
-    world
+    )));
+    BVHNode::new(world.list.as_mut_slice(), 0.0, 1.0)
 }
 
 fn main() {
