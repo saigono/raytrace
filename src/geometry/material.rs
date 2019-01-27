@@ -1,7 +1,9 @@
 use super::hitable::HitRecord;
+use super::texture::Texture;
 use crate::linalg::{Ray, Vec3};
 
 use rand::Rng;
+use std::rc::Rc;
 
 fn random_in_unit_sphere() -> Vec3 {
     let mut p: Vec3;
@@ -21,11 +23,11 @@ pub trait Material {
 }
 
 pub struct Lambertian {
-    albedo: Vec3,
+    albedo: Rc<Texture>,
 }
 
 impl Lambertian {
-    pub fn new(albedo: Vec3) -> Self {
+    pub fn new(albedo: Rc<Texture>) -> Self {
         Self { albedo: albedo }
     }
 }
@@ -34,7 +36,7 @@ impl Material for Lambertian {
     fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Vec3, Ray)> {
         let target = rec.p + rec.normal + random_in_unit_sphere();
         let scattered = Ray::new(rec.p, target - rec.p, r_in.time);
-        let attenuation = self.albedo.clone();
+        let attenuation = self.albedo.value(0.0, 0.0, &rec.p);
         Some((attenuation, scattered))
     }
 }

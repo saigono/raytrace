@@ -4,6 +4,7 @@ mod image;
 mod linalg;
 
 use geometry::bvh_node::BVHNode;
+use geometry::texture::{CheckerTexture, ConstantTexture};
 use geometry::{Dielectric, Hitable, HitableList, Lambertian, Metal, MovingSphere, Sphere};
 use linalg::{Ray, Vec3};
 use rand::Rng;
@@ -35,7 +36,10 @@ fn random_scene() -> BVHNode {
     world.push(Rc::new(Sphere::new(
         Vec3::new(0.0, -1000.0, 0.0),
         1000.0,
-        Rc::new(Lambertian::new(Vec3(0.5, 0.5, 0.5))),
+        Rc::new(Lambertian::new(Rc::new(CheckerTexture::new(
+            Rc::new(ConstantTexture::new(Vec3::new(0.2, 0.3, 0.1))),
+            Rc::new(ConstantTexture::new(Vec3::new(0.9, 0.9, 0.9))),
+        )))),
     )));
     let mut rng = rand::thread_rng();
     for a in -11..11 {
@@ -49,11 +53,11 @@ fn random_scene() -> BVHNode {
                     world.push(Rc::new(Sphere::new(
                         center,
                         0.2,
-                        Rc::new(Lambertian::new(Vec3::new(
+                        Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
                             rng.gen::<f32>() * rng.gen::<f32>(),
                             rng.gen::<f32>() * rng.gen::<f32>(),
                             rng.gen::<f32>() * rng.gen::<f32>(),
-                        ))),
+                        ))))),
                     )));
                 } else if choose_mat < 0.95 {
                     world.push(Rc::new(Sphere::new(
@@ -87,7 +91,9 @@ fn random_scene() -> BVHNode {
     world.push(Rc::new(Sphere::new(
         Vec3::new(-4.0, 1.0, 0.0),
         1.0,
-        Rc::new(Lambertian::new(Vec3::new(0.4, 0.2, 0.1))),
+        Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+            0.4, 0.2, 0.1,
+        ))))),
     )));
     world.push(Rc::new(Sphere::new(
         Vec3::new(4.0, 1.0, 0.0),
