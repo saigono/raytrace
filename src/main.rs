@@ -2,9 +2,10 @@ mod camera;
 mod geometry;
 mod image;
 mod linalg;
+mod random;
 
 use geometry::bvh_node::BVHNode;
-use geometry::texture::{CheckerTexture, ConstantTexture};
+use geometry::texture::{CheckerTexture, ConstantTexture, PerlinTexture};
 use geometry::{Dielectric, Hitable, HitableList, Lambertian, Metal, MovingSphere, Sphere};
 use linalg::{Ray, Vec3};
 use rand::Rng;
@@ -31,6 +32,7 @@ fn color(r: &Ray, world: &Hitable, depth: i32) -> Vec3 {
         }
     }
 }
+
 fn random_scene() -> BVHNode {
     let mut world = HitableList::new();
     world.push(Rc::new(Sphere::new(
@@ -103,6 +105,23 @@ fn random_scene() -> BVHNode {
     BVHNode::new(world.list.as_mut_slice(), 0.0, 1.0)
 }
 
+fn perlin_scene() -> BVHNode {
+    let perlin_text = Rc::new(PerlinTexture::new());
+    let material = Rc::new(Lambertian::new(perlin_text));
+    let mut world = HitableList::new();
+    world.push(Rc::new(Sphere::new(
+        Vec3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        material,
+    )));
+    world.push(Rc::new(Sphere::new(
+        Vec3::new(0.0, 2.0, 0.0),
+        2.0,
+        Rc::new(Lambertian::new(Rc::new(PerlinTexture::new()))),
+    )));
+    BVHNode::new(world.list.as_mut_slice(), 0.0, 1.0)
+}
+
 fn main() {
     let mut data: Vec<u8> = Vec::new();
     let width = 300;
@@ -125,7 +144,7 @@ fn main() {
         1.0,
     );
 
-    let world = random_scene();
+    let world = perlin_scene();
     // world.push(Sphere::new(
     //     Vec3(0.0, 0.0, -1.0),
     //     0.5,
