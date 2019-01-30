@@ -49,3 +49,21 @@ pub fn write_to_ppm(path_to_file: &str, data: &mut [u8], width: u32, height: u32
         write!(file, "\n").unwrap();
     }
 }
+
+pub fn read_png(path_to_file: &str) -> (Vec<u8>, usize, usize){
+    let path = Path::new(path_to_file);
+    let display = path.display();
+
+    let file = match File::open(&path) {
+        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Ok(file) => file,
+    };
+    let decoder = png::Decoder::new(file);
+    let (info, mut reader) = decoder.read_info().unwrap();
+    // Allocate the output buffer.
+    let mut buf = vec![0; info.buffer_size()];
+    // Read the next frame. Currently this function should only called once.
+    // The default options
+    reader.next_frame(&mut buf).unwrap();
+    (buf, info.width as usize, info.height as usize)
+}

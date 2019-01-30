@@ -5,7 +5,7 @@ mod linalg;
 mod random;
 
 use geometry::bvh_node::BVHNode;
-use geometry::texture::{CheckerTexture, ConstantTexture, PerlinTexture};
+use geometry::texture::{CheckerTexture, ConstantTexture, PerlinTexture, ImageTexture};
 use geometry::{Dielectric, Hitable, HitableList, Lambertian, Metal, MovingSphere, Sphere};
 use linalg::{Ray, Vec3};
 use rand::Rng;
@@ -122,6 +122,21 @@ fn perlin_scene() -> BVHNode {
     BVHNode::new(world.list.as_mut_slice(), 0.0, 1.0)
 }
 
+fn earth_scene() -> BVHNode {
+    let (image_data, width, height) = image::read_png("earthmap.png");
+    let texture = ImageTexture::new(&image_data, width, height);
+    let mut world = HitableList::new();
+    world.push(
+        Rc::new(
+            Sphere::new(
+            Vec3::new(0.0, 0.0, 0.0),
+            2.0,
+                Rc::new(Lambertian::new(Rc::new(texture)))
+    )));
+    BVHNode::new(world.list.as_mut_slice(), 0.0, 1.0)
+
+}
+
 fn main() {
     let mut data: Vec<u8> = Vec::new();
     let width = 300;
@@ -144,7 +159,7 @@ fn main() {
         1.0,
     );
 
-    let world = perlin_scene();
+    let world = earth_scene();
     // world.push(Sphere::new(
     //     Vec3(0.0, 0.0, -1.0),
     //     0.5,

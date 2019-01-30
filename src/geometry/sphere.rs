@@ -21,6 +21,15 @@ impl Sphere {
     }
 }
 
+fn get_sphere_uv(p: &Vec3) -> (f32, f32) {
+    let phi = p.2.atan2(p.0);
+    let theta = p.1.asin();
+    (
+        1.0 - 0.5 * (phi + std::f32::consts::PI) * std::f32::consts::FRAC_1_PI,
+        (theta + std::f32::consts::FRAC_PI_2) * std::f32::consts::FRAC_1_PI
+    )
+}
+
 impl Hitable for Sphere {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let oc = &r.origin - &self.center;
@@ -32,8 +41,11 @@ impl Hitable for Sphere {
             let mut temp = (-b - discriminant.sqrt()) / a;
             if temp < t_max && temp > t_min {
                 let p = r.point_at_parameter(temp);
+                let (u, v) = get_sphere_uv(&((p - self.center)/self.radius));
                 let rec = HitRecord::new(
                     temp,
+                    u,
+                    v,
                     p,
                     (p - self.center) / self.radius,
                     self.material.clone(),
@@ -43,8 +55,12 @@ impl Hitable for Sphere {
             temp = (-b + discriminant.sqrt()) / a;
             if temp < t_max && temp > t_min {
                 let p = r.point_at_parameter(temp);
+                let (u, v) = get_sphere_uv(&((p - self.center)/self.radius));
+
                 let rec = HitRecord::new(
                     temp,
+                    u,
+                    v,
                     p,
                     (p - self.center) / self.radius,
                     self.material.clone(),
@@ -109,8 +125,11 @@ impl Hitable for MovingSphere {
             let mut temp = (-b - discriminant.sqrt()) / a;
             if temp < t_max && temp > t_min {
                 let p = r.point_at_parameter(temp);
+                let (u, v) = get_sphere_uv(&((p - self.center(r.time)) / self.radius));
                 let rec = HitRecord::new(
                     temp,
+                    u,
+                    v,
                     p,
                     (p - self.center(r.time)) / self.radius,
                     self.material.clone(),
@@ -120,8 +139,11 @@ impl Hitable for MovingSphere {
             temp = (-b + discriminant.sqrt()) / a;
             if temp < t_max && temp > t_min {
                 let p = r.point_at_parameter(temp);
+                let (u, v) = get_sphere_uv(&((p - self.center(r.time)) / self.radius));
                 let rec = HitRecord::new(
                     temp,
+                    u,
+                    v,
                     p,
                     (p - self.center(r.time)) / self.radius,
                     self.material.clone(),

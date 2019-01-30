@@ -6,15 +6,19 @@ use std::rc::Rc;
 
 pub struct HitRecord {
     pub t: f32,
+    pub u: f32,
+    pub v: f32,
     pub p: Vec3,
     pub normal: Vec3,
     pub mat: Rc<Material>,
 }
 
 impl HitRecord {
-    pub fn new(t: f32, p: Vec3, normal: Vec3, mat: Rc<Material>) -> Self {
-        HitRecord {
+    pub fn new(t: f32, u: f32, v: f32, p: Vec3, normal: Vec3, mat: Rc<Material>) -> Self {
+        Self {
             t: t,
+            u: u,
+            v: v,
             p: p,
             normal: normal,
             mat: mat,
