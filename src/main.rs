@@ -5,8 +5,9 @@ mod linalg;
 mod random;
 
 use geometry::bvh_node::BVHNode;
-use geometry::texture::{CheckerTexture, ConstantTexture, PerlinTexture, ImageTexture};
-use geometry::material::{DiffuseLight};
+use geometry::material::DiffuseLight;
+use geometry::rect::XYRect;
+use geometry::texture::{CheckerTexture, ConstantTexture, ImageTexture, PerlinTexture};
 use geometry::{Dielectric, Hitable, HitableList, Lambertian, Metal, MovingSphere, Sphere};
 use linalg::{Ray, Vec3};
 use rand::Rng;
@@ -28,9 +29,9 @@ fn color(r: &Ray, world: &Hitable, depth: i32) -> Vec3 {
             }
         }
         None => {
-//            let unit_direction = Vec3::unit(&r.direction);
-//            let t = 0.5 * (unit_direction.1 + 1.0);
-//            (1.0 - t) * Vec3(1.0, 1.0, 1.0) + t * Vec3(0.5, 0.7, 1.0)
+            //            let unit_direction = Vec3::unit(&r.direction);
+            //            let t = 0.5 * (unit_direction.1 + 1.0);
+            //            (1.0 - t) * Vec3(1.0, 1.0, 1.0) + t * Vec3(0.5, 0.7, 1.0)
             Vec3::new(0.0, 0.0, 0.0)
         }
     }
@@ -129,120 +130,71 @@ fn earth_scene() -> BVHNode {
     let (image_data, width, height) = image::read_png("earthmap.png");
     let texture = ImageTexture::new(&image_data, width, height);
     let mut world = HitableList::new();
-    world.push(
-        Rc::new(
-            Sphere::new(
-            Vec3::new(0.0, 0.0, 0.0),
-            2.0,
-                Rc::new(Lambertian::new(Rc::new(texture)))
+    world.push(Rc::new(Sphere::new(
+        Vec3::new(0.0, 0.0, 0.0),
+        2.0,
+        Rc::new(Lambertian::new(Rc::new(texture))),
     )));
     BVHNode::new(world.list.as_mut_slice(), 0.0, 1.0)
-
 }
 
 fn lighted_scene() -> BVHNode {
     let mut world = HitableList::new();
 
-    world.push(
-        Rc::new(
-            Sphere::new(
-                Vec3::new(0.0, -1000.0, 0.0),
-                1000.0,
-                Rc::new(
-                    Lambertian::new(
-                        Rc::new(
-                            ConstantTexture::new(
-                                Vec3::new(0.8, 0.9, 0.6)
-                            )
-                        )
-                    )
-                )
-            )
-        )
-    );
+    world.push(Rc::new(Sphere::new(
+        Vec3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+            0.8, 0.9, 0.6,
+        ))))),
+    )));
 
-    world.push(
-        Rc::new(
-            Sphere::new(
-                Vec3::new(0.0, 1.4, 0.0),
-                1.1,
-                Rc::new(
-                    Metal::new(
-                        Vec3::new(0.9, 0.8, 0.9),
-                        0.0,
-                    )
-                )
-            )
-        )
-    );
+    world.push(Rc::new(Sphere::new(
+        Vec3::new(0.0, 1.4, 0.0),
+        1.1,
+        Rc::new(Metal::new(Vec3::new(0.9, 0.8, 0.9), 0.1)),
+    )));
 
-    world.push(
-        Rc::new(
-            Sphere::new(
-                Vec3::new(1.5, 0.25, 1.0),
-                0.25,
-                Rc::new(
-                    Lambertian::new(
-                        Rc::new(
-                            ConstantTexture::new(
-                                Vec3::new(0.9, 0.1, 0.1)
-                            )
-                        )
-                    )
-                )
-            )
-        )
-    );
+    world.push(Rc::new(Sphere::new(
+        Vec3::new(1.5, 0.25, 1.0),
+        0.25,
+        Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+            0.9, 0.1, 0.1,
+        ))))),
+    )));
 
-    world.push(
-        Rc::new(
-            Sphere::new(
-                Vec3::new(1.5, 0.6, 3.0),
-                0.6,
-                Rc::new(
-                    Lambertian::new(
-                        Rc::new(
-                            ConstantTexture::new(
-                                Vec3::new(0.2, 0.6, 0.9)
-                            )
-                        )
-                    )
-                )
-            )
-        )
-    );
+    world.push(Rc::new(Sphere::new(
+        Vec3::new(1.5, 0.6, 3.0),
+        0.6,
+        Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+            0.2, 0.6, 0.9,
+        ))))),
+    )));
 
-    world.push(
-        Rc::new(
-            Sphere::new(
-                Vec3::new(3.5, 0.8, -1.7),
-                0.8,
-                Rc::new(
-                    Dielectric::new(
-                        1.5
-                            )
-                        )
-            )
-        )
-    );
+    world.push(Rc::new(Sphere::new(
+        Vec3::new(3.5, 0.8, -1.7),
+        0.8,
+        Rc::new(Dielectric::new(1.5)),
+    )));
 
-    world.push(
-        Rc::new(
-            Sphere::new(
-                Vec3::new(0.0, 6.2, 2.0),
-                2.0,
-                Rc::new(
-                    DiffuseLight::new(
-                        Rc::new(
-                            ConstantTexture::new(
-                                1.0 * Vec3::new(1.0, 1.0, 1.0)
-                            )
-                        )
-                    )
-                )
-            )
-        )
-    );
+    world.push(Rc::new(Sphere::new(
+        Vec3::new(0.0, 6.2, 2.0),
+        2.0,
+        Rc::new(DiffuseLight::new(Rc::new(ConstantTexture::new(
+            1.0 * Vec3::new(1.0, 1.0, 1.0),
+        )))),
+    )));
+
+    world.push(Rc::new(XYRect::new(
+        -1.5,
+        1.0,
+        0.0,
+        3.0,
+        2.0,
+        Rc::new(DiffuseLight::new(Rc::new(ConstantTexture::new(
+            1.0 * Vec3::new(1.0, 1.0, 1.0),
+        )))),
+    )));
 
     BVHNode::new(world.list.as_mut_slice(), 0.0, 1.0)
 }
@@ -252,9 +204,10 @@ fn main() {
     let width = 300;
     let height = 150;
     let n_samples = 250;
-
+    // Store real textures in materials, using DiffuseLight<T: Texture> definition
+    // because actually we don't really need to store references
     let look_from = Vec3(13.0, 2.0, 3.0);
-    let look_at = Vec3(0.0, 0.4, 0.0);
+    let look_at = Vec3(0.0, 0.0, 0.0);
     let dist_to_focus = 10.0;
 
     let camera = camera::Camera::new(
