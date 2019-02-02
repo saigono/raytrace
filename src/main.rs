@@ -5,10 +5,13 @@ mod linalg;
 mod random;
 
 use geometry::bvh_node::BVHNode;
-use geometry::material::DiffuseLight;
-use geometry::rect::XYRect;
+use geometry::flip_normals::FlipNormals;
+use geometry::hitable::Hitable;
+use geometry::hitable_list::HitableList;
+use geometry::material::{Dielectric, DiffuseLight, Lambertian, Metal};
+use geometry::rect::{XYRect, XZRect, YZRect};
+use geometry::sphere::Sphere;
 use geometry::texture::{CheckerTexture, ConstantTexture, ImageTexture, PerlinTexture};
-use geometry::{Dielectric, Hitable, HitableList, Lambertian, Metal, MovingSphere, Sphere};
 use linalg::{Ray, Vec3};
 use rand::Rng;
 use std::rc::Rc;
@@ -28,12 +31,7 @@ fn color(r: &Ray, world: &Hitable, depth: i32) -> Vec3 {
                 emitted
             }
         }
-        None => {
-            //            let unit_direction = Vec3::unit(&r.direction);
-            //            let t = 0.5 * (unit_direction.1 + 1.0);
-            //            (1.0 - t) * Vec3(1.0, 1.0, 1.0) + t * Vec3(0.5, 0.7, 1.0)
-            Vec3::new(0.0, 0.0, 0.0)
-        }
+        None => Vec3::new(0.0, 0.0, 0.0),
     }
 }
 
@@ -199,22 +197,68 @@ fn lighted_scene() -> BVHNode {
     BVHNode::new(world.list.as_mut_slice(), 0.0, 1.0)
 }
 
+fn cornell_box_scene() -> BVHNode {
+    let mut world = HitableList::new();
+    let red = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+        0.65, 0.05, 0.05,
+    )))));
+    let white = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+        0.73, 0.73, 0.73,
+    )))));
+    let green = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+        0.12, 0.45, 0.15,
+    )))));
+    let light = Rc::new(DiffuseLight::new(Rc::new(ConstantTexture::new(Vec3::new(
+        15.0, 15.0, 15.0,
+    )))));
+
+    world.push(Rc::new(FlipNormals::new(Rc::new(YZRect::new(
+        0.0, 0.0, 555.0, 555.0, 555.0, green,
+    )))));
+    world.push(Rc::new(YZRect::new(0.0, 0.0, 555.0, 555.0, 0.0, red)));
+    world.push(Rc::new(XZRect::new(
+        213.0, 227.0, 343.0, 332.0, 554.0, light,
+    )));
+    // world.push(Rc::new(FlipNormals::new(Rc::new())));
+    world.push(Rc::new(FlipNormals::new(Rc::new(XZRect::new(
+        0.0,
+        0.0,
+        555.0,
+        555.0,
+        555.0,
+        white.clone(),
+    )))));
+    world.push(Rc::new(XZRect::new(
+        0.0,
+        0.0,
+        555.0,
+        555.0,
+        0.0,
+        white.clone(),
+    )));
+    world.push(Rc::new(FlipNormals::new(Rc::new(XYRect::new(
+        0.0, 0.0, 555.0, 555.0, 555.0, white,
+    )))));
+
+    BVHNode::new(world.list.as_mut_slice(), 0.0, 1.0)
+}
+
 fn main() {
     let mut data: Vec<u8> = Vec::new();
-    let width = 300;
-    let height = 150;
-    let n_samples = 250;
+    let width = 400;
+    let height = 400;
+    let n_samples = 1000;
     // Store real textures in materials, using DiffuseLight<T: Texture> definition
     // because actually we don't really need to store references
-    let look_from = Vec3(13.0, 2.0, 3.0);
-    let look_at = Vec3(0.0, 0.0, 0.0);
+    let look_from = Vec3(278.0, 278.0, -800.0);
+    let look_at = Vec3(278.0, 278.0, 0.0);
     let dist_to_focus = 10.0;
 
     let camera = camera::Camera::new(
         look_from,
         look_at,
         Vec3::new(0.0, 1.0, 0.0),
-        20.0,
+        40.0,
         (width as f32) / (height as f32),
         0.1,
         dist_to_focus,
@@ -222,43 +266,7 @@ fn main() {
         1.0,
     );
 
-    let world = lighted_scene();
-    // world.push(Sphere::new(
-    //     Vec3(0.0, 0.0, -1.0),
-    //     0.5,
-    //     Rc::new(Lambertian::new(Vec3::new(0.1, 0.1, 0.9))),
-    // ));
-    // world.push(Sphere::new(
-    //     Vec3(0.0, -100.5, -1.0),
-    //     100.0,
-    //     Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0))),
-    // ));
-    // world.push(Sphere::new(
-    //     Vec3(1.0, 0.0, -1.0),
-    //     0.5,
-    //     Rc::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3)),
-    // ));
-    // world.push(Sphere::new(
-    //     Vec3(-1.0, 0.0, -1.0),
-    //     0.5,
-    //     Rc::new(Dielectric::new(1.5)),
-    // ));
-    // world.push(Sphere::new(
-    //     Vec3(-1.0, 0.0, -1.0),
-    //     -0.45,
-    //     Rc::new(Dielectric::new(1.5)),
-    // ));
-    // let R = std::f32::consts::FRAC_PI_4.cos();
-    // world.push(Sphere::new(
-    //     Vec3::new(-R, 0.0, -1.0),
-    //     R,
-    //     Rc::new(Lambertian::new(Vec3::new(1.0, 0.0, 0.0))),
-    // ));
-    // world.push(Sphere::new(
-    //     Vec3::new(R, 0.0, -1.0),
-    //     R,
-    //     Rc::new(Lambertian::new(Vec3::new(0.0, 0.0, 1.0))),
-    // ));
+    let world = cornell_box_scene();
 
     let mut rng = rand::thread_rng();
 
