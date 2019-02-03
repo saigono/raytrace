@@ -371,6 +371,111 @@ fn cornell_smoke_scene() -> BVHNode {
     BVHNode::new(world.list.as_mut_slice(), 0.0, 1.0)
 }
 
+fn complex_scene() -> BVHNode {
+    let mut world = HitableList::new();
+    let mut boxlist = HitableList::new();
+    let mut boxlist2 = HitableList::new();
+
+    let white = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+        0.73, 0.73, 0.73,
+    )))));
+    let ground = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+        0.48, 0.83, 0.53,
+    )))));
+    let light = Rc::new(DiffuseLight::new(Rc::new(ConstantTexture::new(
+        5.0 * Vec3::new(1.0, 1.0, 1.0),
+    ))));
+    let glass = Rc::new(Dielectric::new(1.5));
+
+    let mut rng = rand::thread_rng();
+
+    for i in 0..20 {
+        for j in 0..20 {
+            let w = 100.0;
+            let x0 = -1000.0 + (i as f32) * w;
+            let z0 = -1000.0 + (j as f32) * w;
+            let y0 = 0.0;
+            let x1 = x0 + w;
+            let z1 = z0 + w;
+            let y1 = 100.0 * (rng.gen::<f32>() + 0.01);
+            boxlist.push(Rc::new(BoxObject::new(
+                Vec3::new(x0, y0, z0),
+                Vec3::new(x1, y1, z1),
+                ground.clone(),
+            )));
+        }
+    }
+    world.push(Rc::new(BVHNode::new(boxlist.list.as_mut_slice(), 0.0, 1.0)));
+
+    for j in 0..1000 {
+        boxlist2.push(Rc::new(Sphere::new(
+            Vec3::new(
+                165.0 * rng.gen::<f32>(),
+                165.0 * rng.gen::<f32>(),
+                165.0 * rng.gen::<f32>(),
+            ),
+            10.0,
+            white.clone(),
+        )));
+    }
+    world.push(Rc::new(Translation::new(
+        Rc::new(YRotation::new(
+            Rc::new(BVHNode::new(boxlist2.list.as_mut_slice(), 0.0, 1.0)),
+            15.0,
+        )),
+        Vec3::new(-100.0, 270.0, 395.0),
+    )));
+
+    world.push(Rc::new(XZRect::new(
+        123.0,
+        147.0,
+        423.0,
+        412.0,
+        554.0,
+        light.clone(),
+    )));
+
+    world.push(Rc::new(Sphere::new(
+        Vec3::new(260.0, 150.0, 45.0),
+        50.0,
+        glass.clone(),
+    )));
+    world.push(Rc::new(Sphere::new(
+        Vec3::new(0.0, 150.0, 145.0),
+        50.0,
+        Rc::new(Metal::new(Vec3::new(0.8, 0.8, 0.9), 10.0)),
+    )));
+
+    let boundary = Rc::new(Sphere::new(
+        Vec3::new(360.0, 150.0, 145.0),
+        70.0,
+        glass.clone(),
+    ));
+    world.push(boundary.clone());
+    world.push(Rc::new(ConstantMedium::new(
+        boundary.clone(),
+        0.2,
+        Rc::new(ConstantTexture::new(Vec3::new(0.2, 0.4, 0.9))),
+    )));
+
+    let atmosphere = Rc::new(Sphere::new(Vec3::new(0.0, 0.0, 0.0), 5000.0, glass.clone()));
+    world.push(Rc::new(ConstantMedium::new(
+        atmosphere,
+        0.00001,
+        Rc::new(ConstantTexture::new(Vec3::new(1.0, 1.0, 1.0))),
+    )));
+
+    let (image_data, width, height) = image::read_png("earthmap.png");
+    let texture = ImageTexture::new(&image_data, width, height);
+    world.push(Rc::new(Sphere::new(
+        Vec3::new(400.0, 250.0, 400.0),
+        100.0,
+        Rc::new(Lambertian::new(Rc::new(texture))),
+    )));
+
+    BVHNode::new(world.list.as_mut_slice(), 0.0, 1.0)
+}
+
 fn main() {
     let mut data: Vec<u8> = Vec::new();
     let width = 300;
@@ -378,7 +483,7 @@ fn main() {
     let n_samples = 100;
     // Store real textures in materials, using DiffuseLight<T: Texture> definition
     // because actually we don't really need to store references
-    let look_from = Vec3(278.0, 278.0, -800.0);
+    let look_from = Vec3(478.0, 278.0, -600.0);
     let look_at = Vec3(278.0, 278.0, 0.0);
     let dist_to_focus = 278.0;
 
@@ -394,7 +499,7 @@ fn main() {
         1.0,
     );
 
-    let world = cornell_smoke_scene();
+    let world = complex_scene();
 
     let mut rng = rand::thread_rng();
 
@@ -411,12 +516,30 @@ fn main() {
             }
             col = col / (n_samples as f32);
 
-            let r = (255.99 * col.0.sqrt()) as u8;
-            let g = (255.99 * col.1.sqrt()) as u8;
-            let b = (255.99 * col.2.sqrt()) as u8;
-            data.push(r);
-            data.push(g);
-            data.push(b);
+            if col.0 > 1.0 {
+                data.push(255);
+            } else {
+                data.push((255.99 * col.0.sqrt()) as u8);
+            }
+
+            if col.1 > 1.0 {
+                data.push(255);
+            } else {
+                data.push((255.99 * col.1.sqrt()) as u8);
+            }
+
+            if col.2 > 1.0 {
+                data.push(255);
+            } else {
+                data.push((255.99 * col.2.sqrt()) as u8);
+            }
+
+            // let r = (255.99 * col.0.sqrt()) as u8;
+            // let g = (255.99 * col.1.sqrt()) as u8;
+            // let b = (255.99 * col.2.sqrt()) as u8;
+            // data.push(r);
+            // data.push(g);
+            // data.push(b);
         }
     }
     image::write_to_png("out/render.png", data.as_mut_slice(), width, height);
