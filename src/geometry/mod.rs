@@ -1,6 +1,7 @@
 pub mod aabb;
 pub mod box_object;
 pub mod bvh_node;
+pub mod constant_medium;
 pub mod flip_normals;
 pub mod hitable;
 pub mod hitable_list;

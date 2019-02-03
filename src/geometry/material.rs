@@ -146,14 +146,12 @@ impl Material for Dielectric {
 }
 
 pub struct DiffuseLight {
-    emit_tex: Rc<Texture>
+    emit_tex: Rc<Texture>,
 }
 
 impl DiffuseLight {
     pub fn new(emit_tex: Rc<Texture>) -> Self {
-        Self {
-            emit_tex: emit_tex
-        }
+        Self { emit_tex: emit_tex }
     }
 }
 
@@ -164,5 +162,24 @@ impl Material for DiffuseLight {
 
     fn emit(&self, u: f32, v: f32, p: &Vec3) -> Vec3 {
         self.emit_tex.value(u, v, p)
+    }
+}
+
+pub struct Isotropic {
+    albedo: Rc<Texture>,
+}
+
+impl Isotropic {
+    pub fn new(albedo: Rc<Texture>) -> Self {
+        Self { albedo: albedo }
+    }
+}
+
+impl Material for Isotropic {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Vec3, Ray)> {
+        Some((
+            self.albedo.value(rec.u, rec.v, &rec.p),
+            Ray::new(rec.p, random_in_unit_sphere(), r_in.time),
+        ))
     }
 }

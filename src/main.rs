@@ -6,6 +6,7 @@ mod random;
 
 use geometry::box_object::BoxObject;
 use geometry::bvh_node::BVHNode;
+use geometry::constant_medium::ConstantMedium;
 use geometry::flip_normals::FlipNormals;
 use geometry::hitable::Hitable;
 use geometry::hitable_list::HitableList;
@@ -275,23 +276,106 @@ fn cornell_box_scene() -> BVHNode {
         )),
         Vec3::new(265.0, 0.0, 295.0),
     )));
-    // world.push(Rc::new(Translation::new(
-    //     Rc::new(BoxObject::new(
-    //         Vec3::new(0.0, 0.0, 0.0),
-    //         Vec3::new(165.0, 330.0, 165.0),
-    //         white.clone(),
-    //     )),
-    //     Vec3::new(265.0, 0.0, 295.0),
-    // )));
+
+    BVHNode::new(world.list.as_mut_slice(), 0.0, 1.0)
+}
+
+fn cornell_smoke_scene() -> BVHNode {
+    let mut world = HitableList::new();
+    let red = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+        0.65, 0.05, 0.05,
+    )))));
+    let white = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+        0.73, 0.73, 0.73,
+    )))));
+    let green = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+        0.12, 0.45, 0.15,
+    )))));
+    let light = Rc::new(DiffuseLight::new(Rc::new(ConstantTexture::new(
+        3.0 * Vec3::new(1.0, 1.0, 1.0),
+    ))));
+
+    world.push(Rc::new(FlipNormals::new(Rc::new(YZRect::new(
+        0.0, 0.0, 555.0, 555.0, 555.0, green,
+    )))));
+    world.push(Rc::new(YZRect::new(0.0, 0.0, 555.0, 555.0, 0.0, red)));
+    world.push(Rc::new(XZRect::new(
+        113.0,
+        127.0,
+        443.0,
+        432.0,
+        554.0,
+        light.clone(),
+    )));
+
+    world.push(Rc::new(FlipNormals::new(Rc::new(XZRect::new(
+        0.0,
+        0.0,
+        555.0,
+        555.0,
+        555.0,
+        white.clone(),
+    )))));
+    world.push(Rc::new(XZRect::new(
+        0.0,
+        0.0,
+        555.0,
+        555.0,
+        0.0,
+        white.clone(),
+    )));
+    world.push(Rc::new(FlipNormals::new(Rc::new(XYRect::new(
+        0.0,
+        0.0,
+        555.0,
+        555.0,
+        555.0,
+        white.clone(),
+    )))));
+
+    let box1 = Rc::new(Translation::new(
+        Rc::new(YRotation::new(
+            Rc::new(BoxObject::new(
+                Vec3::new(0.0, 0.0, 0.0),
+                Vec3::new(165.0, 165.0, 165.0),
+                white.clone(),
+            )),
+            -18.0,
+        )),
+        Vec3::new(130.0, 0.0, 65.0),
+    ));
+
+    let box2 = Rc::new(Translation::new(
+        Rc::new(YRotation::new(
+            Rc::new(BoxObject::new(
+                Vec3::new(0.0, 0.0, 0.0),
+                Vec3::new(165.0, 330.0, 165.0),
+                white.clone(),
+            )),
+            15.0,
+        )),
+        Vec3::new(265.0, 0.0, 295.0),
+    ));
+
+    world.push(Rc::new(ConstantMedium::new(
+        box1,
+        0.01,
+        Rc::new(ConstantTexture::new(Vec3::new(1.0, 1.0, 1.0))),
+    )));
+    world.push(Rc::new(ConstantMedium::new(
+        box2,
+        0.01,
+        Rc::new(ConstantTexture::new(Vec3::new(0.0, 0.0, 0.0))),
+    )));
 
     BVHNode::new(world.list.as_mut_slice(), 0.0, 1.0)
 }
 
 fn main() {
     let mut data: Vec<u8> = Vec::new();
-    let width = 500;
-    let height = 500;
-    let n_samples = 1000;
+    let width = 300;
+    let height = 300;
+    let n_samples = 100;
     // Store real textures in materials, using DiffuseLight<T: Texture> definition
     // because actually we don't really need to store references
     let look_from = Vec3(278.0, 278.0, -800.0);
@@ -310,7 +394,7 @@ fn main() {
         1.0,
     );
 
-    let world = cornell_box_scene();
+    let world = cornell_smoke_scene();
 
     let mut rng = rand::thread_rng();
 
