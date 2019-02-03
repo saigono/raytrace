@@ -4,6 +4,7 @@ mod image;
 mod linalg;
 mod random;
 
+use geometry::box_object::BoxObject;
 use geometry::bvh_node::BVHNode;
 use geometry::flip_normals::FlipNormals;
 use geometry::hitable::Hitable;
@@ -12,6 +13,7 @@ use geometry::material::{Dielectric, DiffuseLight, Lambertian, Metal};
 use geometry::rect::{XYRect, XZRect, YZRect};
 use geometry::sphere::Sphere;
 use geometry::texture::{CheckerTexture, ConstantTexture, ImageTexture, PerlinTexture};
+use geometry::transform::{Translation, YRotation};
 use linalg::{Ray, Vec3};
 use rand::Rng;
 use std::rc::Rc;
@@ -208,16 +210,21 @@ fn cornell_box_scene() -> BVHNode {
     let green = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
         0.12, 0.45, 0.15,
     )))));
-    let light = Rc::new(DiffuseLight::new(Rc::new(ConstantTexture::new(Vec3::new(
-        15.0, 15.0, 15.0,
-    )))));
+    let light = Rc::new(DiffuseLight::new(Rc::new(ConstantTexture::new(
+        15.0 * Vec3::new(1.0, 1.0, 1.0),
+    ))));
 
     world.push(Rc::new(FlipNormals::new(Rc::new(YZRect::new(
         0.0, 0.0, 555.0, 555.0, 555.0, green,
     )))));
     world.push(Rc::new(YZRect::new(0.0, 0.0, 555.0, 555.0, 0.0, red)));
     world.push(Rc::new(XZRect::new(
-        213.0, 227.0, 343.0, 332.0, 554.0, light,
+        213.0,
+        227.0,
+        343.0,
+        332.0,
+        554.0,
+        light.clone(),
     )));
     // world.push(Rc::new(FlipNormals::new(Rc::new())));
     world.push(Rc::new(FlipNormals::new(Rc::new(XZRect::new(
@@ -237,22 +244,59 @@ fn cornell_box_scene() -> BVHNode {
         white.clone(),
     )));
     world.push(Rc::new(FlipNormals::new(Rc::new(XYRect::new(
-        0.0, 0.0, 555.0, 555.0, 555.0, white,
+        0.0,
+        0.0,
+        555.0,
+        555.0,
+        555.0,
+        white.clone(),
     )))));
+
+    world.push(Rc::new(Translation::new(
+        Rc::new(YRotation::new(
+            Rc::new(BoxObject::new(
+                Vec3::new(0.0, 0.0, 0.0),
+                Vec3::new(165.0, 165.0, 165.0),
+                white.clone(),
+            )),
+            -18.0,
+        )),
+        Vec3::new(130.0, 0.0, 65.0),
+    )));
+
+    world.push(Rc::new(Translation::new(
+        Rc::new(YRotation::new(
+            Rc::new(BoxObject::new(
+                Vec3::new(0.0, 0.0, 0.0),
+                Vec3::new(165.0, 330.0, 165.0),
+                white.clone(),
+            )),
+            15.0,
+        )),
+        Vec3::new(265.0, 0.0, 295.0),
+    )));
+    // world.push(Rc::new(Translation::new(
+    //     Rc::new(BoxObject::new(
+    //         Vec3::new(0.0, 0.0, 0.0),
+    //         Vec3::new(165.0, 330.0, 165.0),
+    //         white.clone(),
+    //     )),
+    //     Vec3::new(265.0, 0.0, 295.0),
+    // )));
 
     BVHNode::new(world.list.as_mut_slice(), 0.0, 1.0)
 }
 
 fn main() {
     let mut data: Vec<u8> = Vec::new();
-    let width = 400;
-    let height = 400;
+    let width = 500;
+    let height = 500;
     let n_samples = 1000;
     // Store real textures in materials, using DiffuseLight<T: Texture> definition
     // because actually we don't really need to store references
     let look_from = Vec3(278.0, 278.0, -800.0);
     let look_at = Vec3(278.0, 278.0, 0.0);
-    let dist_to_focus = 10.0;
+    let dist_to_focus = 278.0;
 
     let camera = camera::Camera::new(
         look_from,

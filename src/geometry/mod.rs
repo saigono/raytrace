@@ -1,4 +1,5 @@
 pub mod aabb;
+pub mod box_object;
 pub mod bvh_node;
 pub mod flip_normals;
 pub mod hitable;
@@ -7,3 +8,4 @@ pub mod material;
 pub mod rect;
 pub mod sphere;
 pub mod texture;
+pub mod transform;
