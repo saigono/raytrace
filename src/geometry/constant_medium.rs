@@ -1,7 +1,7 @@
 use super::aabb::AABB;
 use super::hitable::{HitRecord, Hitable};
-use super::material::{Isotropic, Material};
-use super::texture::Texture;
+use crate::materials::{Isotropic};
+use crate::textures::Texture;
 
 use crate::linalg::{Ray, Vec3};
 
@@ -10,7 +10,7 @@ use std::rc::Rc;
 pub struct ConstantMedium {
     boundary: Rc<Hitable>,
     density: f32,
-    phase_function: Rc<Material>,
+    phase_function: Rc<Isotropic>,
 }
 
 impl ConstantMedium {

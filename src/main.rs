@@ -2,7 +2,9 @@ mod camera;
 mod geometry;
 mod image;
 mod linalg;
+mod materials;
 mod random;
+mod textures;
 
 use geometry::box_object::BoxObject;
 use geometry::bvh_node::BVHNode;
@@ -10,14 +12,14 @@ use geometry::constant_medium::ConstantMedium;
 use geometry::flip_normals::FlipNormals;
 use geometry::hitable::Hitable;
 use geometry::hitable_list::HitableList;
-use geometry::material::{Dielectric, DiffuseLight, Lambertian, Metal};
+use materials::{Dielectric, DiffuseLight, Lambertian, Metal};
 use geometry::rect::{XYRect, XZRect, YZRect};
 use geometry::sphere::Sphere;
-use geometry::texture::{CheckerTexture, ConstantTexture, ImageTexture, PerlinTexture};
 use geometry::transform::{Translation, YRotation};
 use linalg::{Ray, Vec3};
 use rand::Rng;
 use std::rc::Rc;
+use textures::{CheckerTexture, ConstantTexture, ImageTexture, PerlinTexture};
 
 fn color(r: &Ray, world: &Hitable, depth: i32) -> Vec3 {
     match world.hit(r, 0.001, std::f32::MAX) {

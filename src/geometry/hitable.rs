@@ -1,5 +1,5 @@
 use super::aabb::AABB;
-use super::material::Material;
+use crate::materials::Material;
 use crate::linalg::{Ray, Vec3};
 
 use std::rc::Rc;

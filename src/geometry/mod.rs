@@ -5,8 +5,6 @@ pub mod constant_medium;
 pub mod flip_normals;
 pub mod hitable;
 pub mod hitable_list;
-pub mod material;
 pub mod rect;
 pub mod sphere;
-pub mod texture;
 pub mod transform;

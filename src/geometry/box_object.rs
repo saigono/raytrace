@@ -2,7 +2,7 @@ use super::aabb::AABB;
 use super::flip_normals::FlipNormals;
 use super::hitable::{HitRecord, Hitable};
 use super::hitable_list::HitableList;
-use super::material::Material;
+use crate::materials::Material;
 use super::rect::{XYRect, XZRect, YZRect};
 
 use crate::linalg::{Ray, Vec3};
