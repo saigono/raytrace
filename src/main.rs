@@ -17,31 +17,15 @@ use geometry::sphere::Sphere;
 use geometry::transform::{Translation, YRotation};
 use linalg::{Ray, Vec3};
 use materials::{Dielectric, DiffuseLight, Lambertian, Metal};
-use rand::Rng;
-use std::sync::Arc;
 use textures::{CheckerTexture, ConstantTexture, ImageTexture, PerlinTexture};
 
-use std::sync::RwLock;
-use std::thread;
+use std::sync::{mpsc, Arc};
+use std::time::SystemTime;
 
-fn color(r: &Ray, world: &Hitable, depth: i32) -> Vec3 {
-    match world.hit(r, 0.001, std::f32::MAX) {
-        Some(rec) => {
-            let emitted = rec.mat.emit(rec.u, rec.v, &rec.p);
-            if depth < 50 {
-                match rec.mat.scatter(r, &rec) {
-                    Some((attenuation, scattered)) => {
-                        emitted + attenuation * color(&scattered, world, depth + 1)
-                    }
-                    None => emitted,
-                }
-            } else {
-                emitted
-            }
-        }
-        None => Vec3::new(0.0, 0.0, 0.0),
-    }
-}
+use rand::Rng;
+use threadpool::ThreadPool;
+
+extern crate num_cpus;
 
 fn random_scene() -> BVHNode {
     let mut world = HitableList::new();
@@ -485,8 +469,8 @@ fn complex_scene() -> BVHNode {
     BVHNode::new(world.list.as_mut_slice(), 0.0, 1.0)
 }
 
-fn threaded_color(r: &Ray, world: &Arc<RwLock<Hitable>>, depth: i32) -> Vec3 {
-    match world.read().unwrap().hit(r, 0.001, std::f32::MAX) {
+fn threaded_color(r: &Ray, world: &Arc<Hitable>, depth: i32) -> Vec3 {
+    match world.hit(r, 0.001, std::f32::MAX) {
         Some(rec) => {
             let emitted = rec.mat.emit(rec.u, rec.v, &rec.p);
             if depth < 50 {
@@ -506,7 +490,7 @@ fn threaded_color(r: &Ray, world: &Arc<RwLock<Hitable>>, depth: i32) -> Vec3 {
 
 fn partial_render(
     camera: Arc<camera::Camera>,
-    world: Arc<RwLock<Hitable>>,
+    world: Arc<Hitable>,
     start_x: usize,
     start_y: usize,
     width: usize,
@@ -552,16 +536,18 @@ fn partial_render(
     }
     data
 }
-use std::sync::mpsc;
 
 const BLOCK: usize = 16;
 
 fn main() {
-    let width = 512;
-    let height = 512;
+    //target: 125.05
+    let start = SystemTime::now();
+
+    let width = 1024;
+    let height = 1024;
     let n_samples = 100;
     let mut data: Vec<u8> = Vec::with_capacity(width * height * 3);
-    for i in 0..(width * height * 3) {
+    for _ in 0..(width * height * 3) {
         data.push(0);
     }
 
@@ -580,16 +566,17 @@ fn main() {
         0.0,
         1.0,
     ));
+    let world = Arc::new(complex_scene());
 
-    let world = Arc::new(RwLock::new(complex_scene()));
-
+    // data = partial_render(camera, world, 0, 0, width, height, n_samples, width, height);
+    let pool = ThreadPool::new(num_cpus::get());
     let (sender, receiver) = mpsc::channel();
     for j in (0..height).step_by(BLOCK) {
         for i in (0..width).step_by(BLOCK) {
             let sender = sender.clone();
             let camera_copy = camera.clone();
             let world_copy = world.clone();
-            thread::spawn(move || {
+            pool.execute(move || {
                 let rendered = partial_render(
                     camera_copy,
                     world_copy,
@@ -605,7 +592,6 @@ fn main() {
             });
         }
     }
-
     for j in (0..height).step_by(BLOCK) {
         for i in (0..width).step_by(BLOCK) {
             let (start_x, start_y, partial_data) = receiver.recv().unwrap();
@@ -628,5 +614,8 @@ fn main() {
         width as u32,
         height as u32,
     );
-    // write_to_ppm("out/render.ppm", data.as_mut_slice(), width, height);
+    println!(
+        "Render time: {:?}",
+        SystemTime::now().duration_since(start).unwrap()
+    );
 }

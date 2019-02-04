@@ -7,3 +7,5 @@ edition = "2018"
 [dependencies]
 png = "0.14.0"
 rand = "0.6.4"
+threadpool = "1.7.1"
+num_cpus = "1.9.0"

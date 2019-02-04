@@ -1,0 +1,193 @@
+Working on: start_x 0 start_y 0 width 64 height 64 pw 512 ph 512 
+Working on: start_x 64 start_y 0 width 64 height 64 pw 512 ph 512 
+Working on: start_x 192 start_y 0 width 64 height 64 pw 512 ph 512 
+Working on: start_x 128 start_y 0 width 64 height 64 pw 512 ph 512 
+work done 0 0 1.521287s
+Working on: start_x 256 start_y 0 width 64 height 64 pw 512 ph 512 
+Got 0 0
+work done 192 0 1.697413s
+Working on: start_x 320 start_y 0 width 64 height 64 pw 512 ph 512 
+Got 192 0
+work done 64 0 2.000994s
+Working on: start_x 384 start_y 0 width 64 height 64 pw 512 ph 512 
+Got 64 0
+work done 128 0 2.199277s
+Working on: start_x 448 start_y 0 width 64 height 64 pw 512 ph 512 
+Got 128 0
+work done 256 0 1.098925s
+Working on: start_x 0 start_y 64 width 64 height 64 pw 512 ph 512 
+Got 256 0
+work done 320 0 1.023032s
+Working on: start_x 64 start_y 64 width 64 height 64 pw 512 ph 512 
+Got 320 0
+work done 448 0 844.312ms
+Got 448 0
+Working on: start_x 128 start_y 64 width 64 height 64 pw 512 ph 512 
+work done 384 0 1.374526s
+Working on: start_x 192 start_y 64 width 64 height 64 pw 512 ph 512 
+Got 384 0
+work done 0 64 1.710495s
+Working on: start_x 256 start_y 64 width 64 height 64 pw 512 ph 512 
+Got 0 64
+work done 256 64 1.865652s
+Working on: start_x 320 start_y 64 width 64 height 64 pw 512 ph 512 
+Got 256 64
+work done 192 64 3.095691s
+Got 192 64
+Working on: start_x 384 start_y 64 width 64 height 64 pw 512 ph 512 
+work done 320 64 1.674822s
+Working on: start_x 448 start_y 64 width 64 height 64 pw 512 ph 512 
+Got 320 64
+work done 384 64 1.804102s
+Working on: start_x 0 start_y 128 width 64 height 64 pw 512 ph 512 
+Got 384 64
+work done 448 64 1.496919s
+Working on: start_x 64 start_y 128 width 64 height 64 pw 512 ph 512 
+Got 448 64
+work done 0 128 1.177635s
+Got 0 128
+Working on: start_x 128 start_y 128 width 64 height 64 pw 512 ph 512 
+work done 64 64 7.410603s
+Working on: start_x 192 start_y 128 width 64 height 64 pw 512 ph 512 
+Got 64 64
+work done 192 128 3.16917s
+Working on: start_x 256 start_y 128 width 64 height 64 pw 512 ph 512 
+Got 192 128
+work done 128 64 10.493319s
+Working on: start_x 320 start_y 128 width 64 height 64 pw 512 ph 512 
+Got 128 64
+work done 320 128 1.03723s
+Working on: start_x 384 start_y 128 width 64 height 64 pw 512 ph 512 
+Got 320 128
+work done 256 128 2.104407s
+Working on: start_x 448 start_y 128 width 64 height 64 pw 512 ph 512 
+Got 256 128
+work done 384 128 1.28674s
+Working on: start_x 0 start_y 192 width 64 height 64 pw 512 ph 512 
+Got 384 128
+work done 448 128 988.076ms
+Working on: start_x 64 start_y 192 width 64 height 64 pw 512 ph 512 
+Got 448 128
+work done 0 192 959.143ms
+Working on: start_x 128 start_y 192 width 64 height 64 pw 512 ph 512 
+Got 0 192
+work done 128 192 1.328584s
+Working on: start_x 192 start_y 192 width 64 height 64 pw 512 ph 512 
+Got 128 192
+work done 64 128 8.9051s
+Got 64 128
+Working on: start_x 256 start_y 192 width 64 height 64 pw 512 ph 512 
+work done 192 192 147.26ms
+Working on: start_x 320 start_y 192 width 64 height 64 pw 512 ph 512 
+Got 192 192
+work done 256 192 553.994ms
+Working on: start_x 384 start_y 192 width 64 height 64 pw 512 ph 512 
+Got 256 192
+work done 320 192 606.219ms
+Working on: start_x 448 start_y 192 width 64 height 64 pw 512 ph 512 
+Got 320 192
+work done 448 192 124.924ms
+Got 448 192
+Working on: start_x 0 start_y 256 width 64 height 64 pw 512 ph 512 
+work done 384 192 233.685ms
+Working on: start_x 64 start_y 256 width 64 height 64 pw 512 ph 512 
+Got 384 192
+work done 0 256 247.878ms
+Working on: start_x 128 start_y 256 width 64 height 64 pw 512 ph 512 
+Got 0 256
+work done 64 192 2.998002s
+Working on: start_x 192 start_y 256 width 64 height 64 pw 512 ph 512 
+Got 64 192
+work done 64 256 378.242ms
+Working on: start_x 256 start_y 256 width 64 height 64 pw 512 ph 512 
+Got 64 256
+work done 128 256 220.837ms
+Working on: start_x 320 start_y 256 width 64 height 64 pw 512 ph 512 
+Got 128 256
+work done 192 256 155.229ms
+Working on: start_x 384 start_y 256 width 64 height 64 pw 512 ph 512 
+Got 192 256
+work done 128 128 10.790833s
+Working on: start_x 448 start_y 256 width 64 height 64 pw 512 ph 512 
+Got 128 128
+work done 448 256 116.785ms
+Working on: start_x 0 start_y 320 width 64 height 64 pw 512 ph 512 
+Got 448 256
+work done 0 320 129.234ms
+Got 0 320
+Working on: start_x 64 start_y 320 width 64 height 64 pw 512 ph 512 
+work done 64 320 130.033ms
+Working on: start_x 128 start_y 320 width 64 height 64 pw 512 ph 512 
+Got 64 320
+work done 128 320 127.201ms
+Working on: start_x 192 start_y 320 width 64 height 64 pw 512 ph 512 
+Got 128 320
+work done 384 256 1.223474s
+Working on: start_x 256 start_y 320 width 64 height 64 pw 512 ph 512 
+Got 384 256
+work done 192 320 133.758ms
+Working on: start_x 320 start_y 320 width 64 height 64 pw 512 ph 512 
+Got 192 320
+work done 256 320 2.690781s
+Working on: start_x 384 start_y 320 width 64 height 64 pw 512 ph 512 
+Got 256 320
+work done 384 320 460.747ms
+Working on: start_x 448 start_y 320 width 64 height 64 pw 512 ph 512 
+Got 384 320
+work done 448 320 125.801ms
+Working on: start_x 0 start_y 384 width 64 height 64 pw 512 ph 512 
+Got 448 320
+work done 0 384 130.908ms
+Got 0 384
+Working on: start_x 64 start_y 384 width 64 height 64 pw 512 ph 512 
+work done 64 384 132.928ms
+Got 64 384
+Working on: start_x 128 start_y 384 width 64 height 64 pw 512 ph 512 
+work done 320 320 3.485604s
+Working on: start_x 192 start_y 384 width 64 height 64 pw 512 ph 512 
+Got 320 320
+work done 128 384 125.443ms
+Got 128 384
+Working on: start_x 256 start_y 384 width 64 height 64 pw 512 ph 512 
+work done 192 384 121.822ms
+Working on: start_x 320 start_y 384 width 64 height 64 pw 512 ph 512 
+Got 192 384
+work done 256 256 5.116351s
+Working on: start_x 384 start_y 384 width 64 height 64 pw 512 ph 512 
+Got 256 256
+work done 256 384 119.32ms
+Working on: start_x 448 start_y 384 width 64 height 64 pw 512 ph 512 
+Got 256 384
+work done 320 384 126.523ms
+Working on: start_x 0 start_y 448 width 64 height 64 pw 512 ph 512 
+Got 320 384
+work done 448 384 124.506ms
+Working on: start_x 64 start_y 448 width 64 height 64 pw 512 ph 512 
+Got 448 384
+work done 384 384 130.753ms
+Working on: start_x 128 start_y 448 width 64 height 64 pw 512 ph 512 
+Got 384 384
+work done 0 448 126.896ms
+Working on: start_x 192 start_y 448 width 64 height 64 pw 512 ph 512 
+Got 0 448
+work done 64 448 152.802ms
+Got 64 448
+Working on: start_x 256 start_y 448 width 64 height 64 pw 512 ph 512 
+work done 128 448 147.861ms
+Working on: start_x 320 start_y 448 width 64 height 64 pw 512 ph 512 
+Got 128 448
+work done 192 448 147.525ms
+Working on: start_x 384 start_y 448 width 64 height 64 pw 512 ph 512 
+Got 192 448
+work done 320 448 123.951ms
+Working on: start_x 448 start_y 448 width 64 height 64 pw 512 ph 512 
+Got 320 448
+work done 256 448 140.078ms
+Got 256 448
+work done 384 448 117.377ms
+Got 384 448
+work done 448 448 94.348ms
+Got 448 448
+work done 320 256 6.543228s
+Got 320 256
+Render time: 26.070248s
