@@ -1,24 +1,24 @@
 use super::aabb::AABB;
 use super::hitable::{HitRecord, Hitable};
-use crate::materials::{Isotropic};
+use crate::materials::Isotropic;
 use crate::textures::Texture;
 
 use crate::linalg::{Ray, Vec3};
 
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub struct ConstantMedium {
-    boundary: Rc<Hitable>,
+    boundary: Arc<Hitable>,
     density: f32,
-    phase_function: Rc<Isotropic>,
+    phase_function: Arc<Isotropic>,
 }
 
 impl ConstantMedium {
-    pub fn new(boundary: Rc<Hitable>, density: f32, phase_function: Rc<Texture>) -> Self {
+    pub fn new(boundary: Arc<Hitable>, density: f32, phase_function: Arc<Texture>) -> Self {
         Self {
             boundary: boundary,
             density: density,
-            phase_function: Rc::new(Isotropic::new(phase_function)),
+            phase_function: Arc::new(Isotropic::new(phase_function)),
         }
     }
 }

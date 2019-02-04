@@ -2,12 +2,12 @@ use super::aabb::AABB;
 use super::flip_normals::FlipNormals;
 use super::hitable::{HitRecord, Hitable};
 use super::hitable_list::HitableList;
-use crate::materials::Material;
 use super::rect::{XYRect, XZRect, YZRect};
+use crate::materials::Material;
 
 use crate::linalg::{Ray, Vec3};
 
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub struct BoxObject {
     p_min: Vec3,
@@ -16,9 +16,9 @@ pub struct BoxObject {
 }
 
 impl BoxObject {
-    pub fn new(p0: Vec3, p1: Vec3, material: Rc<Material>) -> Self {
+    pub fn new(p0: Vec3, p1: Vec3, material: Arc<Material>) -> Self {
         let mut faces = HitableList::new();
-        faces.push(Rc::new(XYRect::new(
+        faces.push(Arc::new(XYRect::new(
             p0.0,
             p0.1,
             p1.0,
@@ -26,7 +26,7 @@ impl BoxObject {
             p1.2,
             material.clone(),
         )));
-        faces.push(Rc::new(FlipNormals::new(Rc::new(XYRect::new(
+        faces.push(Arc::new(FlipNormals::new(Arc::new(XYRect::new(
             p0.0,
             p0.1,
             p1.0,
@@ -34,7 +34,7 @@ impl BoxObject {
             p0.2,
             material.clone(),
         )))));
-        faces.push(Rc::new(XZRect::new(
+        faces.push(Arc::new(XZRect::new(
             p0.0,
             p0.2,
             p1.0,
@@ -42,7 +42,7 @@ impl BoxObject {
             p1.1,
             material.clone(),
         )));
-        faces.push(Rc::new(FlipNormals::new(Rc::new(XZRect::new(
+        faces.push(Arc::new(FlipNormals::new(Arc::new(XZRect::new(
             p0.0,
             p0.2,
             p1.0,
@@ -50,7 +50,7 @@ impl BoxObject {
             p0.1,
             material.clone(),
         )))));
-        faces.push(Rc::new(YZRect::new(
+        faces.push(Arc::new(YZRect::new(
             p0.1,
             p0.2,
             p1.1,
@@ -58,7 +58,7 @@ impl BoxObject {
             p1.0,
             material.clone(),
         )));
-        faces.push(Rc::new(FlipNormals::new(Rc::new(YZRect::new(
+        faces.push(Arc::new(FlipNormals::new(Arc::new(YZRect::new(
             p0.1,
             p0.2,
             p1.1,

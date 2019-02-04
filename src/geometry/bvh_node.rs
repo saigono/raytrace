@@ -2,15 +2,15 @@ use super::aabb::{surrounding_box, AABB};
 use super::hitable::{HitRecord, Hitable};
 use crate::linalg::Ray;
 
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub struct BVHNode {
-    bbox: AABB,
-    left: Rc<Hitable>,
-    right: Rc<Hitable>,
+    pub bbox: AABB,
+    left: Arc<Hitable>,
+    right: Arc<Hitable>,
 }
 
-fn box_x_compare(a: &Rc<Hitable>, b: &Rc<Hitable>) -> std::cmp::Ordering {
+fn box_x_compare(a: &Arc<Hitable>, b: &Arc<Hitable>) -> std::cmp::Ordering {
     let left_box = a.bounding_box(0.0, 0.0).unwrap();
     let right_box = b.bounding_box(0.0, 0.0).unwrap();
     if left_box.min.0 - right_box.min.0 < 0.0 {
@@ -20,7 +20,7 @@ fn box_x_compare(a: &Rc<Hitable>, b: &Rc<Hitable>) -> std::cmp::Ordering {
     }
 }
 
-fn box_y_compare(a: &Rc<Hitable>, b: &Rc<Hitable>) -> std::cmp::Ordering {
+fn box_y_compare(a: &Arc<Hitable>, b: &Arc<Hitable>) -> std::cmp::Ordering {
     let left_box = a.bounding_box(0.0, 0.0).unwrap();
     let right_box = b.bounding_box(0.0, 0.0).unwrap();
     if left_box.min.1 - right_box.min.1 < 0.0 {
@@ -30,7 +30,7 @@ fn box_y_compare(a: &Rc<Hitable>, b: &Rc<Hitable>) -> std::cmp::Ordering {
     }
 }
 
-fn box_z_compare(a: &Rc<Hitable>, b: &Rc<Hitable>) -> std::cmp::Ordering {
+fn box_z_compare(a: &Arc<Hitable>, b: &Arc<Hitable>) -> std::cmp::Ordering {
     let left_box = a.bounding_box(0.0, 0.0).unwrap();
     let right_box = b.bounding_box(0.0, 0.0).unwrap();
     if left_box.min.2 - right_box.min.2 < 0.0 {
@@ -41,7 +41,7 @@ fn box_z_compare(a: &Rc<Hitable>, b: &Rc<Hitable>) -> std::cmp::Ordering {
 }
 
 impl BVHNode {
-    pub fn new(list: &mut [Rc<Hitable>], time0: f32, time1: f32) -> Self {
+    pub fn new(list: &mut [Arc<Hitable>], time0: f32, time1: f32) -> Self {
         let axis = (3.0 * rand::random::<f32>()) as usize;
         if axis == 0 {
             list.sort_by(box_x_compare);
@@ -50,8 +50,8 @@ impl BVHNode {
         } else {
             list.sort_by(box_z_compare);
         }
-        let left: Rc<Hitable>;
-        let right: Rc<Hitable>;
+        let left: Arc<Hitable>;
+        let right: Arc<Hitable>;
 
         let size = list.len();
 
@@ -63,8 +63,8 @@ impl BVHNode {
             right = list[1].clone();
         } else {
             let half_size = size / 2;
-            left = Rc::new(BVHNode::new(&mut list[..half_size], time0, time1));
-            right = Rc::new(BVHNode::new(&mut list[half_size..size], time0, time1));
+            left = Arc::new(BVHNode::new(&mut list[..half_size], time0, time1));
+            right = Arc::new(BVHNode::new(&mut list[half_size..size], time0, time1));
         }
         let left_box = left.bounding_box(time0, time1).unwrap();
         let right_box = right.bounding_box(time0, time1).unwrap();

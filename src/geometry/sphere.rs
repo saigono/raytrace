@@ -1,18 +1,18 @@
 use super::aabb::{surrounding_box, AABB};
 use super::hitable::{HitRecord, Hitable};
-use crate::materials::Material;
 use crate::linalg::{Ray, Vec3};
+use crate::materials::Material;
 
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f32,
-    pub material: Rc<Material>,
+    pub material: Arc<Material>,
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f32, material: Rc<Material>) -> Self {
+    pub fn new(center: Vec3, radius: f32, material: Arc<Material>) -> Self {
         Self {
             center: center,
             radius: radius,
@@ -26,7 +26,7 @@ fn get_sphere_uv(p: &Vec3) -> (f32, f32) {
     let theta = p.1.asin();
     (
         1.0 - 0.5 * (phi + std::f32::consts::PI) * std::f32::consts::FRAC_1_PI,
-        (theta + std::f32::consts::FRAC_PI_2) * std::f32::consts::FRAC_1_PI
+        (theta + std::f32::consts::FRAC_PI_2) * std::f32::consts::FRAC_1_PI,
     )
 }
 
@@ -41,7 +41,7 @@ impl Hitable for Sphere {
             let mut temp = (-b - discriminant.sqrt()) / a;
             if temp < t_max && temp > t_min {
                 let p = r.point_at_parameter(temp);
-                let (u, v) = get_sphere_uv(&((p - self.center)/self.radius));
+                let (u, v) = get_sphere_uv(&((p - self.center) / self.radius));
                 let rec = HitRecord::new(
                     temp,
                     u,
@@ -55,7 +55,7 @@ impl Hitable for Sphere {
             temp = (-b + discriminant.sqrt()) / a;
             if temp < t_max && temp > t_min {
                 let p = r.point_at_parameter(temp);
-                let (u, v) = get_sphere_uv(&((p - self.center)/self.radius));
+                let (u, v) = get_sphere_uv(&((p - self.center) / self.radius));
 
                 let rec = HitRecord::new(
                     temp,
@@ -85,7 +85,7 @@ pub struct MovingSphere {
     pub time_start: f32,
     pub time_end: f32,
     pub radius: f32,
-    pub material: Rc<Material>,
+    pub material: Arc<Material>,
 }
 
 impl MovingSphere {
@@ -95,7 +95,7 @@ impl MovingSphere {
         time_start: f32,
         time_end: f32,
         radius: f32,
-        material: Rc<Material>,
+        material: Arc<Material>,
     ) -> Self {
         Self {
             center_start: center_start,

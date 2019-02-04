@@ -2,15 +2,15 @@ use super::aabb::AABB;
 use super::hitable::{HitRecord, Hitable};
 use crate::linalg::{Ray, Vec3};
 
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub struct Translation {
-    hitable: Rc<Hitable>,
+    hitable: Arc<Hitable>,
     offset: Vec3,
 }
 
 impl Translation {
-    pub fn new(hitable: Rc<Hitable>, offset: Vec3) -> Self {
+    pub fn new(hitable: Arc<Hitable>, offset: Vec3) -> Self {
         Self {
             hitable: hitable,
             offset: offset,
@@ -42,14 +42,14 @@ impl Hitable for Translation {
 }
 
 pub struct YRotation {
-    hitable: Rc<Hitable>,
+    hitable: Arc<Hitable>,
     cos_theta: f32,
     sin_theta: f32,
     bbox: AABB,
 }
 
 impl YRotation {
-    pub fn new(hitable: Rc<Hitable>, angle: f32) -> Self {
+    pub fn new(hitable: Arc<Hitable>, angle: f32) -> Self {
         let radians = (std::f32::consts::PI / 180.0) * angle;
         let sin_theta = radians.sin();
         let cos_theta = radians.cos();

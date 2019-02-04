@@ -1,15 +1,15 @@
 use super::texture::Texture;
 use crate::linalg::Vec3;
 
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub struct CheckerTexture {
-    odd: Rc<Texture>,
-    even: Rc<Texture>,
+    odd: Arc<Texture>,
+    even: Arc<Texture>,
 }
 
 impl CheckerTexture {
-    pub fn new(odd: Rc<Texture>, even: Rc<Texture>) -> Self {
+    pub fn new(odd: Arc<Texture>, even: Arc<Texture>) -> Self {
         Self {
             odd: odd,
             even: even,

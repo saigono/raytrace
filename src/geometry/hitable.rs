@@ -1,8 +1,8 @@
 use super::aabb::AABB;
-use crate::materials::Material;
 use crate::linalg::{Ray, Vec3};
+use crate::materials::Material;
 
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub struct HitRecord {
     pub t: f32,
@@ -10,11 +10,11 @@ pub struct HitRecord {
     pub v: f32,
     pub p: Vec3,
     pub normal: Vec3,
-    pub mat: Rc<Material>,
+    pub mat: Arc<Material>,
 }
 
 impl HitRecord {
-    pub fn new(t: f32, u: f32, v: f32, p: Vec3, normal: Vec3, mat: Rc<Material>) -> Self {
+    pub fn new(t: f32, u: f32, v: f32, p: Vec3, normal: Vec3, mat: Arc<Material>) -> Self {
         Self {
             t: t,
             u: u,
@@ -26,7 +26,7 @@ impl HitRecord {
     }
 }
 
-pub trait Hitable {
+pub trait Hitable: Send + Sync {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
     fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB>;
 }

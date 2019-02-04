@@ -4,14 +4,14 @@ use crate::linalg::{Ray, Vec3};
 use crate::random::utils::random_in_unit_sphere;
 use crate::textures::Texture;
 
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub struct Lambertian {
-    albedo: Rc<Texture>,
+    albedo: Arc<Texture>,
 }
 
 impl Lambertian {
-    pub fn new(albedo: Rc<Texture>) -> Self {
+    pub fn new(albedo: Arc<Texture>) -> Self {
         Self { albedo: albedo }
     }
 }

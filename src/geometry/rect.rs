@@ -1,9 +1,9 @@
 use super::aabb::AABB;
 use super::hitable::{HitRecord, Hitable};
-use crate::materials::Material;
 use crate::linalg::{Ray, Vec3};
+use crate::materials::Material;
 
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub struct XYRect {
     x0: f32,
@@ -11,11 +11,11 @@ pub struct XYRect {
     x1: f32,
     y1: f32,
     k: f32,
-    material: Rc<Material>,
+    material: Arc<Material>,
 }
 
 impl XYRect {
-    pub fn new(x0: f32, y0: f32, x1: f32, y1: f32, k: f32, material: Rc<Material>) -> Self {
+    pub fn new(x0: f32, y0: f32, x1: f32, y1: f32, k: f32, material: Arc<Material>) -> Self {
         Self {
             x0: x0,
             y0: y0,
@@ -65,11 +65,11 @@ pub struct XZRect {
     x1: f32,
     z1: f32,
     k: f32,
-    material: Rc<Material>,
+    material: Arc<Material>,
 }
 
 impl XZRect {
-    pub fn new(x0: f32, z0: f32, x1: f32, z1: f32, k: f32, material: Rc<Material>) -> Self {
+    pub fn new(x0: f32, z0: f32, x1: f32, z1: f32, k: f32, material: Arc<Material>) -> Self {
         Self {
             x0: x0,
             z0: z0,
@@ -119,11 +119,11 @@ pub struct YZRect {
     y1: f32,
     z1: f32,
     k: f32,
-    material: Rc<Material>,
+    material: Arc<Material>,
 }
 
 impl YZRect {
-    pub fn new(y0: f32, z0: f32, y1: f32, z1: f32, k: f32, material: Rc<Material>) -> Self {
+    pub fn new(y0: f32, z0: f32, y1: f32, z1: f32, k: f32, material: Arc<Material>) -> Self {
         Self {
             y0: y0,
             z0: z0,

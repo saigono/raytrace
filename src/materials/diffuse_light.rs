@@ -3,14 +3,14 @@ use crate::geometry::hitable::HitRecord;
 use crate::linalg::{Ray, Vec3};
 use crate::textures::Texture;
 
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub struct DiffuseLight {
-    emit_tex: Rc<Texture>,
+    emit_tex: Arc<Texture>,
 }
 
 impl DiffuseLight {
-    pub fn new(emit_tex: Rc<Texture>) -> Self {
+    pub fn new(emit_tex: Arc<Texture>) -> Self {
         Self { emit_tex: emit_tex }
     }
 }

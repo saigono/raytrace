@@ -2,10 +2,10 @@ use super::aabb::{surrounding_box, AABB};
 use super::hitable::{HitRecord, Hitable};
 use crate::linalg::Ray;
 
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub struct HitableList {
-    pub list: std::vec::Vec<Rc<Hitable>>,
+    pub list: std::vec::Vec<Arc<Hitable>>,
     pub size: usize,
 }
 
@@ -17,7 +17,7 @@ impl HitableList {
         }
     }
 
-    pub fn push(&mut self, hitable: Rc<Hitable>) -> &mut Self {
+    pub fn push(&mut self, hitable: Arc<Hitable>) -> &mut Self {
         self.list.push(hitable.clone());
         self.size += 1;
         self

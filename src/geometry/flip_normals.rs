@@ -2,14 +2,14 @@ use super::aabb::AABB;
 use super::hitable::{HitRecord, Hitable};
 use crate::linalg::Ray;
 
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub struct FlipNormals {
-    ptr: Rc<Hitable>,
+    ptr: Arc<Hitable>,
 }
 
 impl FlipNormals {
-    pub fn new(ptr: Rc<Hitable>) -> Self {
+    pub fn new(ptr: Arc<Hitable>) -> Self {
         Self { ptr: ptr }
     }
 }
