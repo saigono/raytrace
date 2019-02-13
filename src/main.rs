@@ -60,11 +60,11 @@ fn random_scene() -> BVHNode {
                         center,
                         0.2,
                         Arc::new(Metal::new(
-                            Vec3::new(
+                            Arc::new(ConstantTexture::new(Vec3::new(
                                 0.5 * (1.0 + rng.gen::<f32>()),
                                 0.5 * (1.0 + rng.gen::<f32>()),
                                 0.5 * (1.0 + rng.gen::<f32>()),
-                            ),
+                            ))),
                             0.5 * (1.0 + rng.gen::<f32>()),
                         )),
                     )));
@@ -94,7 +94,10 @@ fn random_scene() -> BVHNode {
     world.push(Arc::new(Sphere::new(
         Vec3::new(4.0, 1.0, 0.0),
         1.0,
-        Arc::new(Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0)),
+        Arc::new(Metal::new(
+            Arc::new(ConstantTexture::new(Vec3::new(0.7, 0.6, 0.5))),
+            0.0,
+        )),
     )));
     BVHNode::new(world.list.as_mut_slice(), 0.0, 1.0)
 }
@@ -142,7 +145,10 @@ fn lighted_scene() -> BVHNode {
     world.push(Arc::new(Sphere::new(
         Vec3::new(0.0, 1.4, 0.0),
         1.1,
-        Arc::new(Metal::new(Vec3::new(0.9, 0.8, 0.9), 0.1)),
+        Arc::new(Metal::new(
+            Arc::new(ConstantTexture::new(Vec3::new(0.9, 0.8, 0.9))),
+            0.1,
+        )),
     )));
 
     world.push(Arc::new(Sphere::new(
@@ -436,7 +442,10 @@ fn complex_scene() -> BVHNode {
     world.push(Arc::new(Sphere::new(
         Vec3::new(0.0, 150.0, 145.0),
         50.0,
-        Arc::new(Metal::new(Vec3::new(0.8, 0.8, 0.9), 10.0)),
+        Arc::new(Metal::new(
+            Arc::new(ConstantTexture::new(Vec3::new(0.8, 0.8, 0.9))),
+            10.0,
+        )),
     )));
 
     let boundary = Arc::new(Sphere::new(
