@@ -8,6 +8,10 @@ use crate::textures::texture::Texture;
 use crate::textures::{CheckerTexture, ConstantTexture};
 
 use std::collections::HashMap;
+use std::error::Error;
+use std::fs::File;
+use std::io::Read;
+use std::path::Path;
 use std::sync::Arc;
 use std::vec::Vec;
 
@@ -19,9 +23,7 @@ pub struct Scene {
 }
 
 impl Scene {
-    pub fn new() -> Self {
-        // let mut world = HitableList::new();
-
+    pub fn new(path_to_file: &str) -> Self {
         // world.push(Arc::new(XYRect::new(
         //     -1.5,
         //     1.0,
@@ -32,109 +34,16 @@ impl Scene {
         //         1.0 * Vec3::new(1.0, 1.0, 1.0),
         //     )))),
         // )));
-        let parsed = json::parse(
-            r#"
+        let path = Path::new(path_to_file);
+        let display = path.display();
 
-        {
-            "camera": {
-                "look_from": [8.0, 0.5, 2.0],
-                "look_at": [0.0, 0.0, 0.0],
-                "vup": [0.0, 1.0, 0.0],
-                "vfov": 40.0,
-                "aspect": 1.0,
-                "aperture": 0.1,
-                "focus_dist": 8.0,
-                "t_open": 0.0,
-                "t_close": 1.0
-            },
-            "textures": {
-                "white": {
-                    "type": "constant",
-                    "color": [1.0, 1.0, 1.0]
-                },
-                "black": {
-                    "type": "constant",
-                    "color": [0.0, 0.0, 0.0]
-                },
-                "blueish": {
-                    "type": "constant",
-                    "color": [0.05, 0.1, 0.8]
-                },
-                "redish": {
-                    "type": "constant",
-                    "color": [0.9, 0.05, 0.1]
-                },
-                "checker": {
-                    "type": "checker",
-                    "odd": "black",
-                    "even": "white"
-                }
-            },
-            "materials": {
-                "glass": {
-                    "type": "dielectric",
-                    "ref_idx": 1.5
-                },
-                "white_lambertian": {
-                    "type": "lambertian",
-                    "albedo": "white"
-                },
-                "checkerboard": {
-                    "type": "lambertian",
-                    "albedo": "checker"
-                },
-                "dim_light": {
-                    "type": "diffuse_light",
-                    "emit_tex": "white"
-                },
-                "blue_metalic": {
-                    "type": "metal",
-                    "albedo": "blueish",
-                    "fuzz": 0.2
-                },
-                "red_metalic": {
-                    "type": "metal",
-                    "albedo": "redish",
-                    "fuzz": 0.01
-                }
-            },
-            "shapes": [
-                {
-                    "type": "sphere",
-                    "center": [0.0, -1000.0, 0.0],
-                    "radius": 1000.0,
-                    "material": "checkerboard"
-                },
-                {
-                    "type": "sphere",
-                    "center": [0.0, 1.4, 0.0],
-                    "radius": 1.1,
-                    "material": "blue_metalic"
-                },
-                {
-                    "type": "sphere",
-                    "center": [1.5, 0.5, 1.5],
-                    "radius": 0.5,
-                    "material": "red_metalic"
-                },
-                {
-                    "type": "sphere",
-                    "center": [3.5, 0.65, 0.1],
-                    "radius": 0.65,
-                    "material": "glass"
-                },
-                {
-                    "type": "sphere",
-                    "center": [0.0, 6.2, 2.0],
-                    "radius": 2.0,
-                    "material": "dim_light"
-                }
-            ]
-        }
-
-        "#,
-        )
-        .unwrap();
+        let mut file = match File::open(&path) {
+            Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+            Ok(file) => file,
+        };
+        let mut source = String::new();
+        file.read_to_string(&mut source).unwrap();
+        let parsed = json::parse(source.as_mut_str()).unwrap();
 
         // world.push(Arc::new(Sphere::new(
         //     Vec3::new(0.0, 6.2, 2.0),

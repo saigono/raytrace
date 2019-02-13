@@ -1,0 +1,144 @@
+{
+    "camera": {
+        "look_from": [
+            8.0,
+            0.5,
+            2.0
+        ],
+        "look_at": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "vup": [
+            0.0,
+            1.0,
+            0.0
+        ],
+        "vfov": 40.0,
+        "aspect": 1.0,
+        "aperture": 0.1,
+        "focus_dist": 8.0,
+        "t_open": 0.0,
+        "t_close": 1.0
+    },
+    "textures": {
+        "white": {
+            "type": "constant",
+            "color": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        "black": {
+            "type": "constant",
+            "color": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "blueish": {
+            "type": "constant",
+            "color": [
+                0.05,
+                0.1,
+                0.8
+            ]
+        },
+        "redish": {
+            "type": "constant",
+            "color": [
+                0.9,
+                0.05,
+                0.1
+            ]
+        },
+        "checker": {
+            "type": "checker",
+            "odd": "black",
+            "even": "white"
+        }
+    },
+    "materials": {
+        "glass": {
+            "type": "dielectric",
+            "ref_idx": 1.5
+        },
+        "white_lambertian": {
+            "type": "lambertian",
+            "albedo": "white"
+        },
+        "checkerboard": {
+            "type": "lambertian",
+            "albedo": "checker"
+        },
+        "dim_light": {
+            "type": "diffuse_light",
+            "emit_tex": "white"
+        },
+        "blue_metalic": {
+            "type": "metal",
+            "albedo": "blueish",
+            "fuzz": 0.2
+        },
+        "red_metalic": {
+            "type": "metal",
+            "albedo": "redish",
+            "fuzz": 0.01
+        }
+    },
+    "shapes": [
+        {
+            "type": "sphere",
+            "center": [
+                0.0,
+                -1000.0,
+                0.0
+            ],
+            "radius": 1000.0,
+            "material": "checkerboard"
+        },
+        {
+            "type": "sphere",
+            "center": [
+                0.0,
+                1.4,
+                0.0
+            ],
+            "radius": 1.1,
+            "material": "blue_metalic"
+        },
+        {
+            "type": "sphere",
+            "center": [
+                1.5,
+                0.5,
+                1.5
+            ],
+            "radius": 0.5,
+            "material": "red_metalic"
+        },
+        {
+            "type": "sphere",
+            "center": [
+                3.5,
+                0.65,
+                0.1
+            ],
+            "radius": 0.65,
+            "material": "glass"
+        },
+        {
+            "type": "sphere",
+            "center": [
+                0.0,
+                6.2,
+                2.0
+            ],
+            "radius": 2.0,
+            "material": "dim_light"
+        }
+    ]
+}

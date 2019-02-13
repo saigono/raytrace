@@ -12,6 +12,7 @@ use geometry::hitable::Hitable;
 use geometry::hitable_list::HitableList;
 use linalg::{Ray, Vec3};
 
+use std::env;
 use std::sync::{mpsc, Arc};
 use std::time::SystemTime;
 
@@ -554,7 +555,11 @@ fn main() {
         data.push(0);
     }
 
-    let active_scene = scene::Scene::new();
+    let args: std::vec::Vec<String> = env::args().collect();
+    let scene_file = &args[1];
+    let output_file = &args[2];
+
+    let active_scene = scene::Scene::new(scene_file);
 
     let camera = Arc::new(active_scene.camera);
     let mut _world = HitableList::new();
@@ -604,7 +609,7 @@ fn main() {
     }
 
     image::write_to_png(
-        "out/render.png",
+        output_file,
         data.as_mut_slice(),
         width as u32,
         height as u32,
