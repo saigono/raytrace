@@ -1,6 +1,8 @@
 use crate::camera::Camera;
 use crate::geometry::hitable::Hitable;
+use crate::geometry::hitable_list::HitableList;
 use crate::geometry::sphere::Sphere;
+use crate::geometry::triangle::TriangleMesh;
 use crate::linalg::Vec3;
 use crate::materials::material::Material;
 use crate::materials::{Dielectric, DiffuseLight, Lambertian, Metal};
@@ -10,7 +12,7 @@ use crate::textures::{CheckerTexture, ConstantTexture};
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
-use std::io::Read;
+use std::io::{BufRead, BufReader, Read};
 use std::path::Path;
 use std::sync::Arc;
 use std::vec::Vec;
@@ -53,11 +55,15 @@ impl Scene {
         //     )))),
         // )));
 
+        // dbg!("file parsed");
         let camera = build_camera_from_json(&parsed["camera"]);
+        // dbg!("camera read");
         let textures = build_textures_from_json(&parsed["textures"]);
+        // dbg!("textures read");
         let materials = build_materials_from_json(&parsed["materials"], &textures);
+        // dbg!("materials read");
         let shapes = build_shapes_from_json(&parsed["shapes"], &materials);
-
+        // dbg!("shapes read");
         Self {
             camera: camera,
             shapes: shapes,
@@ -164,9 +170,113 @@ fn build_shapes_from_json(
                     mat.clone(),
                 ))
             }
+            // "triangle" => {
+            //     let mat_name = String::from(shape_data["material"].as_str().unwrap());
+            //     let mat: &Arc<Material> = materials.get(&mat_name).unwrap();
+            //     Arc::new(Triangle::new(
+            //         &build_vector_from_json(&shape_data["vertices"][0]),
+            //         &build_vector_from_json(&shape_data["vertices"][1]),
+            //         &build_vector_from_json(&shape_data["vertices"][2]),
+            //         mat.clone(),
+            //     ))
+            // }
+            "triangle_mesh" => {
+                let mat_name = String::from(shape_data["material"].as_str().unwrap());
+                let mat: &Arc<Material> = materials.get(&mat_name).unwrap();
+                let triangle_mesh = build_triangle_mesh_from_obj(
+                    &shape_data["filename"].as_str().unwrap(),
+                    mat.clone(),
+                );
+                let mut hl = HitableList::new();
+                for t in triangle_mesh.iter() {
+                    hl.push(Arc::new(t));
+                }
+                Arc::new(hl)
+            }
             _ => panic!("Unknown shape type"),
         };
         shapes.push(shape);
     }
     shapes
+}
+
+fn build_triangle_mesh_from_obj(path_to_file: &str, material: Arc<Material>) -> TriangleMesh {
+    let path = Path::new(path_to_file);
+    let display = path.display();
+
+    let file = match File::open(&path) {
+        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Ok(file) => file,
+    };
+
+    let mut vertices = Vec::new();
+    let mut normals = Vec::new();
+    let mut v_index = Vec::new();
+    let mut n_index = Vec::new();
+    let mut n_triangles = 0;
+
+    for line in BufReader::new(file).lines() {
+        // println!("{}", line.unwrap());
+        let l = line.unwrap();
+        if l.starts_with("v ") {
+            let coord: Vec<f32> = l
+                .split(" ")
+                .skip(1)
+                .filter(|v| !v.is_empty())
+                .map(|v| v.parse::<f32>().unwrap())
+                .collect();
+            vertices.push(Vec3::new(coord[0], coord[1], coord[2]));
+        } else if l.starts_with("vn") {
+            let coord: Vec<f32> = l
+                .split(" ")
+                .skip(1)
+                .filter(|v| !v.is_empty())
+                .map(|v| v.parse::<f32>().unwrap())
+                .collect();
+            normals.push(Vec3::new(coord[0], coord[1], coord[2]));
+        } else if l.starts_with("f ") {
+            for (v, _, n) in l
+                .split(" ")
+                .skip(1)
+                .filter(|v| !v.is_empty())
+                .map(parse_face_fragment)
+            {
+                v_index.push(v);
+                n_index.push(n);
+            }
+            n_triangles += 1;
+        }
+    }
+    dbg!(normals.len());
+    dbg!(n_triangles);
+    TriangleMesh::new(
+        n_triangles,
+        vertices,
+        normals,
+        v_index,
+        n_index,
+        material.clone(),
+    )
+}
+
+fn parse_face_fragment(s: &str) -> (usize, usize, usize) {
+    let parts: Vec<&str> = s.split("/").collect();
+    match parts.len() {
+        1 => {
+            let v = parts[0].parse::<usize>().unwrap();
+            (v, 0, v)
+        }
+        3 => {
+            let tc = match parts[1].parse::<usize>() {
+                Ok(x) => x,
+                Err(_) => 0,
+            };
+            (
+                parts[0].parse::<usize>().unwrap(),
+                tc,
+                parts[2].parse::<usize>().unwrap(),
+            )
+        }
+        _ => panic!("unknown format"),
+    }
 }

@@ -8,3 +8,4 @@ pub mod hitable_list;
 pub mod rect;
 pub mod sphere;
 pub mod transform;
+pub mod triangle;
