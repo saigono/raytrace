@@ -48,15 +48,6 @@ impl Scene {
         file.read_to_string(&mut source).unwrap();
         let parsed = json::parse(source.as_mut_str()).unwrap();
 
-        // world.push(Arc::new(Sphere::new(
-        //     Vec3::new(0.0, 6.2, 2.0),
-        //     2.0,
-        //     Arc::new(DiffuseLight::new(Arc::new(ConstantTexture::new(
-        //         1.0 * Vec3::new(1.0, 1.0, 1.0),
-        //     )))),
-        // )));
-
-        // dbg!("file parsed");
         let camera = build_camera_from_json(&parsed["camera"]);
         // dbg!("camera read");
         let textures = build_textures_from_json(&parsed["textures"]);
@@ -217,7 +208,6 @@ fn build_triangle_mesh_from_obj(path_to_file: &str, material: Arc<Material>) -> 
     let mut n_triangles = 0;
 
     for line in BufReader::new(file).lines() {
-        // println!("{}", line.unwrap());
         let l = line.unwrap();
         if l.starts_with("v ") {
             let coord: Vec<f32> = l
@@ -248,8 +238,6 @@ fn build_triangle_mesh_from_obj(path_to_file: &str, material: Arc<Material>) -> 
             n_triangles += 1;
         }
     }
-    dbg!(normals.len());
-    dbg!(n_triangles);
     TriangleMesh::new(
         n_triangles,
         Arc::new(vertices),
