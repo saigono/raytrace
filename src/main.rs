@@ -547,9 +547,9 @@ const BLOCK: usize = 16;
 fn main() {
     let start = SystemTime::now();
 
-    let width = 256;
-    let height = 256;
-    let n_samples = 500;
+    let width = 512;
+    let height = 512;
+    let n_samples = 250;
     let mut data: Vec<u8> = Vec::with_capacity(width * height * 3);
     for _ in 0..(width * height * 3) {
         data.push(0);

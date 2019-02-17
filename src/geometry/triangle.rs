@@ -6,29 +6,57 @@ use crate::materials::Material;
 use std::sync::Arc;
 
 pub struct Triangle {
-    a: Vec3,
-    b: Vec3,
-    c: Vec3,
-    normal: Vec3,
+    v_index: [usize; 3],
+    n_index: [usize; 3],
+    vertices: Arc<Vec<Vec3>>,
+    normals: Arc<Vec<Vec3>>,
     material: Arc<Material>,
 }
 
 impl Triangle {
-    pub fn new(a: &Vec3, b: &Vec3, c: &Vec3, normal: &Vec3, material: Arc<Material>) -> Self {
+    pub fn new(
+        v0: usize,
+        v1: usize,
+        v2: usize,
+        n0: usize,
+        n1: usize,
+        n2: usize,
+        vertices: Arc<Vec<Vec3>>,
+        normals: Arc<Vec<Vec3>>,
+        material: Arc<Material>,
+    ) -> Self {
         Self {
-            a: *a,
-            b: *b,
-            c: *c,
-            normal: *normal,
+            v_index: [v0, v1, v2],
+            n_index: [n0, n1, n2],
+            vertices: vertices,
+            normals: normals,
             material: material,
         }
     }
 }
 
+#[inline(always)]
+fn fmax(a: f32, b: f32) -> f32 {
+    if a > b {
+        a
+    } else {
+        b
+    }
+}
+
+#[inline(always)]
+fn fmin(a: f32, b: f32) -> f32 {
+    if a < b {
+        a
+    } else {
+        b
+    }
+}
+
 impl Hitable for Triangle {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
-        let e1 = self.b - self.a;
-        let e2 = self.c - self.a;
+        let e1 = self.vertices[self.v_index[1]] - self.vertices[self.v_index[0]];
+        let e2 = self.vertices[self.v_index[2]] - self.vertices[self.v_index[0]];
         let q = Vec3::cross(&r.direction, &e2);
         let a = Vec3::dot(&e1, &q);
         if a > -0.00001 && a < 0.00001 {
@@ -36,7 +64,7 @@ impl Hitable for Triangle {
         }
 
         let f = 1.0 / a;
-        let s = r.origin - self.a;
+        let s = r.origin - self.vertices[self.v_index[0]];
         let u = f * Vec3::dot(&s, &q);
         if u < 0.0 {
             return None;
@@ -52,35 +80,74 @@ impl Hitable for Triangle {
             return None;
         }
 
+        let w = 1.0 - u - v;
+        let normal = u * self.normals[self.n_index[1]]
+            + v * self.normals[self.n_index[2]]
+            + w * self.normals[self.n_index[0]];
+
         let p = r.point_at_parameter(t);
-        if Vec3::dot(&self.normal, &r.direction) >= 0.0 {
+        if Vec3::dot(&normal, &r.direction) >= 0.0 {
             None
         } else {
-            Some(HitRecord::new(
-                t,
-                u,
-                v,
-                p,
-                self.normal,
-                self.material.clone(),
-            ))
+            Some(HitRecord::new(t, u, v, p, normal, self.material.clone()))
         }
     }
     fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
-        let box1 = AABB::new(&self.a.clone(), &self.b.clone());
-        let box2 = AABB::new(&self.a.clone(), &self.c.clone());
-        let box3 = AABB::new(&self.b.clone(), &self.c.clone());
+        let min = Vec3::new(
+            fmin(
+                self.vertices[self.v_index[0]][0],
+                fmin(
+                    self.vertices[self.v_index[1]][0],
+                    self.vertices[self.v_index[2]][0],
+                ),
+            ),
+            fmin(
+                self.vertices[self.v_index[0]][1],
+                fmin(
+                    self.vertices[self.v_index[1]][1],
+                    self.vertices[self.v_index[2]][1],
+                ),
+            ),
+            fmin(
+                self.vertices[self.v_index[0]][2],
+                fmin(
+                    self.vertices[self.v_index[1]][2],
+                    self.vertices[self.v_index[2]][2],
+                ),
+            ),
+        );
 
-        let aabb = surrounding_box(&surrounding_box(&box1, &box2), &box3);
-        // println!("{:?}", aabb);
-        Some(aabb)
+        let max = Vec3::new(
+            fmax(
+                self.vertices[self.v_index[0]][0],
+                fmax(
+                    self.vertices[self.v_index[1]][0],
+                    self.vertices[self.v_index[2]][0],
+                ),
+            ),
+            fmax(
+                self.vertices[self.v_index[0]][1],
+                fmax(
+                    self.vertices[self.v_index[1]][1],
+                    self.vertices[self.v_index[2]][1],
+                ),
+            ),
+            fmax(
+                self.vertices[self.v_index[0]][2],
+                fmax(
+                    self.vertices[self.v_index[1]][2],
+                    self.vertices[self.v_index[2]][2],
+                ),
+            ),
+        );
+        Some(AABB::new(&min, &max))
     }
 }
 
 pub struct TriangleMesh {
     n_triangles: usize,
-    vertices: Vec<Vec3>,
-    normals: Vec<Vec3>,
+    vertices: Arc<Vec<Vec3>>,
+    normals: Arc<Vec<Vec3>>,
     v_index: Vec<usize>,
     n_index: Vec<usize>,
     material: Arc<Material>,
@@ -89,8 +156,8 @@ pub struct TriangleMesh {
 impl TriangleMesh {
     pub fn new(
         n_triangles: usize,
-        vertices: Vec<Vec3>,
-        normals: Vec<Vec3>,
+        vertices: Arc<Vec<Vec3>>,
+        normals: Arc<Vec<Vec3>>,
         v_index: Vec<usize>,
         n_index: Vec<usize>,
         material: Arc<Material>,
@@ -129,11 +196,22 @@ impl<'a> Iterator for TriangleMeshIterator<'a> {
                 + self.inner.normals[self.inner.n_index[self.cnt * 3 + 1] - 1]
                 + self.inner.normals[self.inner.n_index[self.cnt * 3 + 2] - 1])
                 / 3.0;
+            // let triangle = Triangle::new(
+            //     &self.inner.vertices[self.inner.v_index[self.cnt * 3] - 1],
+            //     &self.inner.vertices[self.inner.v_index[self.cnt * 3 + 1] - 1],
+            //     &self.inner.vertices[self.inner.v_index[self.cnt * 3 + 2] - 1],
+            //     &normal,
+            //     self.inner.material.clone(),
+            // );
             let triangle = Triangle::new(
-                &self.inner.vertices[self.inner.v_index[self.cnt * 3] - 1],
-                &self.inner.vertices[self.inner.v_index[self.cnt * 3 + 1] - 1],
-                &self.inner.vertices[self.inner.v_index[self.cnt * 3 + 2] - 1],
-                &normal,
+                self.inner.v_index[self.cnt * 3] - 1,
+                self.inner.v_index[self.cnt * 3 + 1] - 1,
+                self.inner.v_index[self.cnt * 3 + 2] - 1,
+                self.inner.n_index[self.cnt * 3] - 1,
+                self.inner.n_index[self.cnt * 3 + 1] - 1,
+                self.inner.n_index[self.cnt * 3 + 2] - 1,
+                self.inner.vertices.clone(),
+                self.inner.normals.clone(),
                 self.inner.material.clone(),
             );
             self.cnt += 1;

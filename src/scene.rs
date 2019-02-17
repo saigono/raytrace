@@ -1,4 +1,5 @@
 use crate::camera::Camera;
+use crate::geometry::bvh_node::BVHNode;
 use crate::geometry::hitable::Hitable;
 use crate::geometry::hitable_list::HitableList;
 use crate::geometry::sphere::Sphere;
@@ -191,7 +192,7 @@ fn build_shapes_from_json(
                 for t in triangle_mesh.iter() {
                     hl.push(Arc::new(t));
                 }
-                Arc::new(hl)
+                Arc::new(BVHNode::new(hl.list.as_mut_slice(), 0.0, 1.0))
             }
             _ => panic!("Unknown shape type"),
         };
@@ -251,8 +252,8 @@ fn build_triangle_mesh_from_obj(path_to_file: &str, material: Arc<Material>) -> 
     dbg!(n_triangles);
     TriangleMesh::new(
         n_triangles,
-        vertices,
-        normals,
+        Arc::new(vertices),
+        Arc::new(normals),
         v_index,
         n_index,
         material.clone(),
