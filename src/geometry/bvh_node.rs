@@ -79,22 +79,12 @@ impl BVHNode {
 impl Hitable for BVHNode {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         if self.bbox.hit(r, t_min, t_max) {
-            // let right_rec = self.right.hit(r, t_min, t_max)?;
             match self.left.hit(r, t_min, t_max) {
-                Some(left_rec) => match self.right.hit(r, t_min, t_max) {
-                    Some(right_rec) => {
-                        if left_rec.t < right_rec.t {
-                            Some(left_rec)
-                        } else {
-                            Some(right_rec)
-                        }
-                    }
+                Some(left_rec) => match self.right.hit(r, t_min, left_rec.t) {
+                    Some(right_rec) => Some(right_rec),
                     None => Some(left_rec),
                 },
-                None => match self.right.hit(r, t_min, t_max) {
-                    Some(right_rec) => Some(right_rec),
-                    None => None,
-                },
+                None => self.right.hit(r, t_min, t_max),
             }
         } else {
             None
