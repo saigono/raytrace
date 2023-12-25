@@ -24,3 +24,7 @@ scene/basic.json
 scene/teapot.json
 
 ![scene/teapot.json](./teapot.png)
+
+## external dependencies
+
+Because of rfd we need to install additional backends, see [documentation](https://docs.rs/rfd/latest/rfd/#linux--bsd-backends)
