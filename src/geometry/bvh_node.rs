@@ -1,16 +1,16 @@
 use super::aabb::{surrounding_box, AABB};
-use super::hitable::{HitRecord, Hitable};
+use super::hittable::{HitRecord, Hittable};
 use crate::linalg::Ray;
 
 use std::sync::Arc;
 
 pub struct BVHNode {
     pub bbox: AABB,
-    left: Arc<Hitable>,
-    right: Arc<Hitable>,
+    left: Arc<dyn Hittable>,
+    right: Arc<dyn Hittable>,
 }
 
-fn box_x_compare(a: &Arc<Hitable>, b: &Arc<Hitable>) -> std::cmp::Ordering {
+fn box_x_compare(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>) -> std::cmp::Ordering {
     let left_box = a.bounding_box(0.0, 0.0).unwrap();
     let right_box = b.bounding_box(0.0, 0.0).unwrap();
     if left_box.min.0 - right_box.min.0 < 0.0 {
@@ -20,7 +20,7 @@ fn box_x_compare(a: &Arc<Hitable>, b: &Arc<Hitable>) -> std::cmp::Ordering {
     }
 }
 
-fn box_y_compare(a: &Arc<Hitable>, b: &Arc<Hitable>) -> std::cmp::Ordering {
+fn box_y_compare(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>) -> std::cmp::Ordering {
     let left_box = a.bounding_box(0.0, 0.0).unwrap();
     let right_box = b.bounding_box(0.0, 0.0).unwrap();
     if left_box.min.1 - right_box.min.1 < 0.0 {
@@ -30,7 +30,7 @@ fn box_y_compare(a: &Arc<Hitable>, b: &Arc<Hitable>) -> std::cmp::Ordering {
     }
 }
 
-fn box_z_compare(a: &Arc<Hitable>, b: &Arc<Hitable>) -> std::cmp::Ordering {
+fn box_z_compare(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>) -> std::cmp::Ordering {
     let left_box = a.bounding_box(0.0, 0.0).unwrap();
     let right_box = b.bounding_box(0.0, 0.0).unwrap();
     if left_box.min.2 - right_box.min.2 < 0.0 {
@@ -41,7 +41,7 @@ fn box_z_compare(a: &Arc<Hitable>, b: &Arc<Hitable>) -> std::cmp::Ordering {
 }
 
 impl BVHNode {
-    pub fn new(list: &mut [Arc<Hitable>], time0: f32, time1: f32) -> Self {
+    pub fn new(list: &mut [Arc<dyn Hittable>], time0: f32, time1: f32) -> Self {
         let axis = (3.0 * rand::random::<f32>()) as usize;
         if axis == 0 {
             list.sort_by(box_x_compare);
@@ -50,8 +50,8 @@ impl BVHNode {
         } else {
             list.sort_by(box_z_compare);
         }
-        let left: Arc<Hitable>;
-        let right: Arc<Hitable>;
+        let left: Arc<dyn Hittable>;
+        let right: Arc<dyn Hittable>;
 
         let size = list.len();
 
@@ -76,7 +76,7 @@ impl BVHNode {
     }
 }
 
-impl Hitable for BVHNode {
+impl Hittable for BVHNode {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         if self.bbox.hit(r, t_min, t_max) {
             match self.left.hit(r, t_min, t_max) {
@@ -91,7 +91,7 @@ impl Hitable for BVHNode {
         }
     }
 
-    fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
+    fn bounding_box(&self, _t0: f32, _t1: f32) -> Option<AABB> {
         Some(self.bbox)
     }
 }

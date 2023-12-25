@@ -1,22 +1,22 @@
 use super::material::Material;
-use crate::geometry::hitable::HitRecord;
+use crate::geometry::hittable::HitRecord;
 use crate::linalg::{Ray, Vec3};
 use crate::textures::Texture;
 
 use std::sync::Arc;
 
 pub struct DiffuseLight {
-    emit_tex: Arc<Texture>,
+    emit_tex: Arc<dyn Texture>,
 }
 
 impl DiffuseLight {
-    pub fn new(emit_tex: Arc<Texture>) -> Self {
+    pub fn new(emit_tex: Arc<dyn Texture>) -> Self {
         Self { emit_tex: emit_tex }
     }
 }
 
 impl Material for DiffuseLight {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Vec3, Ray)> {
+    fn scatter(&self, _r_in: &Ray, _rec: &HitRecord) -> Option<(Vec3, Ray)> {
         None
     }
 

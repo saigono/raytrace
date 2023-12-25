@@ -8,8 +8,8 @@ mod scene;
 mod textures;
 
 use geometry::bvh_node::BVHNode;
-use geometry::hitable::Hitable;
-use geometry::hitable_list::HitableList;
+use geometry::hittable::Hittable;
+use geometry::hittable_list::HittableList;
 use linalg::{Ray, Vec3};
 
 use std::env;
@@ -22,7 +22,7 @@ use threadpool::ThreadPool;
 extern crate json;
 extern crate num_cpus;
 
-fn threaded_color(r: &Ray, world: &Arc<Hitable>, depth: i32) -> Vec3 {
+fn threaded_color(r: &Ray, world: &Arc<dyn Hittable>, depth: i32) -> Vec3 {
     match world.hit(r, 0.001, std::f32::MAX) {
         Some(rec) => {
             let emitted = rec.mat.emit(rec.u, rec.v, &rec.p);
@@ -43,7 +43,7 @@ fn threaded_color(r: &Ray, world: &Arc<Hitable>, depth: i32) -> Vec3 {
 
 fn partial_render(
     camera: Arc<camera::Camera>,
-    world: Arc<Hitable>,
+    world: Arc<dyn Hittable>,
     start_x: usize,
     start_y: usize,
     width: usize,
@@ -110,7 +110,7 @@ fn main() {
     let active_scene = scene::Scene::new(scene_file);
 
     let camera = Arc::new(active_scene.camera);
-    let mut _world = HitableList::new();
+    let mut _world = HittableList::new();
     for shape in active_scene.shapes {
         _world.push(shape.clone());
     }
@@ -140,8 +140,8 @@ fn main() {
             });
         }
     }
-    for j in (0..height).step_by(BLOCK) {
-        for i in (0..width).step_by(BLOCK) {
+    for _j in (0..height).step_by(BLOCK) {
+        for _i in (0..width).step_by(BLOCK) {
             let (start_x, start_y, partial_data) = receiver.recv().unwrap();
             let point = (height - start_y - BLOCK) * width * 3 + start_x * 3;
             for y in (0..BLOCK).rev() {

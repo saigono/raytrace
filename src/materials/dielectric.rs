@@ -1,6 +1,6 @@
 use super::material::Material;
 use super::utils::{reflect, refract};
-use crate::geometry::hitable::HitRecord;
+use crate::geometry::hittable::HitRecord;
 use crate::linalg::{Ray, Vec3};
 
 pub struct Dielectric {

@@ -8,11 +8,11 @@ pub struct Perlin {
     perm_x: [usize; PERLIN_SIZE],
     perm_y: [usize; PERLIN_SIZE],
     perm_z: [usize; PERLIN_SIZE],
-    grid: [Vec3; PERLIN_SIZE]
+    grid: [Vec3; PERLIN_SIZE],
 }
 
 fn smooth(t: f32) -> f32 {
-    6.0*t.powf(5.0) - 15.0*t.powf(4.0) + 10.0 * t.powf(3.0)
+    6.0 * t.powf(5.0) - 15.0 * t.powf(4.0) + 10.0 * t.powf(3.0)
 }
 
 fn lerp(lo: f32, hi: f32, t: f32) -> f32 {
@@ -24,6 +24,7 @@ fn smooth_lerp(lo: f32, hi: f32, t: f32) -> f32 {
     lerp(lo, hi, smooth_t)
 }
 
+#[allow(dead_code)]
 fn generate_permutation() -> [usize; PERLIN_SIZE] {
     let mut p = [0_usize; PERLIN_SIZE];
     let mut rng = rand::thread_rng();
@@ -46,8 +47,12 @@ impl Perlin {
         let mut g = [Vec3::new(0.0, 0.0, 0.0); PERLIN_SIZE];
         let mut rng = rand::thread_rng();
         for i in 0..PERLIN_SIZE {
-            g[i] = Vec3::unit(&Vec3::new(2.0 * rng.gen::<f32>() - 1.0, 2.0 * rng.gen::<f32>() - 1.0, 2.0 * rng.gen::<f32>() - 1.0));
-//            g[i] = Vec3::unit(&Vec3::new(rng.gen(), rng.gen(), rng.gen()));
+            g[i] = Vec3::unit(&Vec3::new(
+                2.0 * rng.gen::<f32>() - 1.0,
+                2.0 * rng.gen::<f32>() - 1.0,
+                2.0 * rng.gen::<f32>() - 1.0,
+            ));
+            //            g[i] = Vec3::unit(&Vec3::new(rng.gen(), rng.gen(), rng.gen()));
         }
         Self {
             grid: g,
@@ -98,8 +103,6 @@ impl Perlin {
         let p101 = Vec3::new(fxt, fy, fzt);
         let p011 = Vec3::new(fx, fyt, fzt);
         let p111 = Vec3::new(fxt, fyt, fzt);
-
-
 
         let r0 = smooth_lerp(Vec3::dot(&p000, &c000), Vec3::dot(&p100, &c100), fx);
         let r1 = smooth_lerp(Vec3::dot(&p010, &c010), Vec3::dot(&p110, &c110), fx);

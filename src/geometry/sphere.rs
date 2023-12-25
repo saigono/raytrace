@@ -1,5 +1,5 @@
 use super::aabb::{surrounding_box, AABB};
-use super::hitable::{HitRecord, Hitable};
+use super::hittable::{HitRecord, Hittable};
 use crate::linalg::{Ray, Vec3};
 use crate::materials::Material;
 
@@ -8,11 +8,11 @@ use std::sync::Arc;
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f32,
-    pub material: Arc<Material>,
+    pub material: Arc<dyn Material>,
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f32, material: Arc<Material>) -> Self {
+    pub fn new(center: Vec3, radius: f32, material: Arc<dyn Material>) -> Self {
         Self {
             center: center,
             radius: radius,
@@ -30,7 +30,7 @@ fn get_sphere_uv(p: &Vec3) -> (f32, f32) {
     )
 }
 
-impl Hitable for Sphere {
+impl Hittable for Sphere {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let oc = &r.origin - &self.center;
         let a = Vec3::dot(&r.direction, &r.direction);
@@ -71,7 +71,7 @@ impl Hitable for Sphere {
         None
     }
 
-    fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
+    fn bounding_box(&self, _t0: f32, _t1: f32) -> Option<AABB> {
         Some(AABB::new(
             &(self.center - Vec3::new(self.radius, self.radius, self.radius)),
             &(self.center + Vec3::new(self.radius, self.radius, self.radius)),
@@ -85,17 +85,18 @@ pub struct MovingSphere {
     pub time_start: f32,
     pub time_end: f32,
     pub radius: f32,
-    pub material: Arc<Material>,
+    pub material: Arc<dyn Material>,
 }
 
 impl MovingSphere {
+    #[allow(dead_code)]
     pub fn new(
         center_start: Vec3,
         center_end: Vec3,
         time_start: f32,
         time_end: f32,
         radius: f32,
-        material: Arc<Material>,
+        material: Arc<dyn Material>,
     ) -> Self {
         Self {
             center_start: center_start,
@@ -114,7 +115,7 @@ impl MovingSphere {
     }
 }
 
-impl Hitable for MovingSphere {
+impl Hittable for MovingSphere {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let oc = &r.origin - &self.center(r.time);
         let a = Vec3::dot(&r.direction, &r.direction);
@@ -154,7 +155,7 @@ impl Hitable for MovingSphere {
         None
     }
 
-    fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
+    fn bounding_box(&self, _t0: f32, _t1: f32) -> Option<AABB> {
         let start_box = AABB::new(
             &(self.center_start - Vec3::new(self.radius, self.radius, self.radius)),
             &(self.center_start + Vec3::new(self.radius, self.radius, self.radius)),

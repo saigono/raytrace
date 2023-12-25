@@ -4,12 +4,12 @@ use crate::linalg::Vec3;
 use std::sync::Arc;
 
 pub struct CheckerTexture {
-    odd: Arc<Texture>,
-    even: Arc<Texture>,
+    odd: Arc<dyn Texture>,
+    even: Arc<dyn Texture>,
 }
 
 impl CheckerTexture {
-    pub fn new(odd: Arc<Texture>, even: Arc<Texture>) -> Self {
+    pub fn new(odd: Arc<dyn Texture>, even: Arc<dyn Texture>) -> Self {
         Self {
             odd: odd,
             even: even,

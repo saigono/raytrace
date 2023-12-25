@@ -1,15 +1,15 @@
 use super::aabb::{surrounding_box, AABB};
-use super::hitable::{HitRecord, Hitable};
+use super::hittable::{HitRecord, Hittable};
 use crate::linalg::Ray;
 
 use std::sync::Arc;
 
-pub struct HitableList {
-    pub list: std::vec::Vec<Arc<Hitable>>,
+pub struct HittableList {
+    pub list: std::vec::Vec<Arc<dyn Hittable>>,
     pub size: usize,
 }
 
-impl HitableList {
+impl HittableList {
     pub fn new() -> Self {
         Self {
             list: Vec::new(),
@@ -17,14 +17,14 @@ impl HitableList {
         }
     }
 
-    pub fn push(&mut self, hitable: Arc<Hitable>) -> &mut Self {
+    pub fn push(&mut self, hitable: Arc<dyn Hittable>) -> &mut Self {
         self.list.push(hitable.clone());
         self.size += 1;
         self
     }
 }
 
-impl Hitable for HitableList {
+impl Hittable for HittableList {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let mut closest_so_far = t_max;
         let mut rec: Option<HitRecord> = None;

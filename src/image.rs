@@ -1,4 +1,3 @@
-use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufWriter;
@@ -12,7 +11,7 @@ pub fn write_to_png(path_to_file: &str, data: &mut [u8], width: u32, height: u32
     let display = path.display();
 
     let file = match File::create(&path) {
-        Err(why) => panic!("couldn't create {}: {}", display, why.description()),
+        Err(why) => panic!("couldn't create {}: {}", display, why.to_string()),
         Ok(file) => file,
     };
 
@@ -30,7 +29,7 @@ pub fn write_to_ppm(path_to_file: &str, data: &mut [u8], width: u32, height: u32
     let display = path.display();
 
     let mut file = match File::create(&path) {
-        Err(why) => panic!("couldn't create {}: {}", display, why.description()),
+        Err(why) => panic!("couldn't create {}: {}", display, why.to_string()),
         Ok(file) => file,
     };
 
@@ -50,12 +49,13 @@ pub fn write_to_ppm(path_to_file: &str, data: &mut [u8], width: u32, height: u32
     }
 }
 
-pub fn read_png(path_to_file: &str) -> (Vec<u8>, usize, usize){
+#[allow(dead_code)]
+pub fn read_png(path_to_file: &str) -> (Vec<u8>, usize, usize) {
     let path = Path::new(path_to_file);
     let display = path.display();
 
     let file = match File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Err(why) => panic!("couldn't open {}: {}", display, why.to_string()),
         Ok(file) => file,
     };
     let decoder = png::Decoder::new(file);

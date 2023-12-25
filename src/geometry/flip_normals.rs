@@ -1,20 +1,21 @@
 use super::aabb::AABB;
-use super::hitable::{HitRecord, Hitable};
+use super::hittable::{HitRecord, Hittable};
 use crate::linalg::Ray;
 
 use std::sync::Arc;
 
 pub struct FlipNormals {
-    ptr: Arc<Hitable>,
+    ptr: Arc<dyn Hittable>,
 }
 
 impl FlipNormals {
-    pub fn new(ptr: Arc<Hitable>) -> Self {
+    #[allow(dead_code)]
+    pub fn new(ptr: Arc<dyn Hittable>) -> Self {
         Self { ptr: ptr }
     }
 }
 
-impl Hitable for FlipNormals {
+impl Hittable for FlipNormals {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         match self.ptr.hit(r, t_min, t_max) {
             Some(mut rec) => {

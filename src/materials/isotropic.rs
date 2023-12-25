@@ -1,5 +1,5 @@
 use super::material::Material;
-use crate::geometry::hitable::HitRecord;
+use crate::geometry::hittable::HitRecord;
 use crate::linalg::{Ray, Vec3};
 use crate::random::utils::random_in_unit_sphere;
 use crate::textures::Texture;
@@ -7,11 +7,11 @@ use crate::textures::Texture;
 use std::sync::Arc;
 
 pub struct Isotropic {
-    albedo: Arc<Texture>,
+    albedo: Arc<dyn Texture>,
 }
 
 impl Isotropic {
-    pub fn new(albedo: Arc<Texture>) -> Self {
+    pub fn new(albedo: Arc<dyn Texture>) -> Self {
         Self { albedo: albedo }
     }
 }

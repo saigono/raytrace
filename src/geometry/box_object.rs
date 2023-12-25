@@ -1,7 +1,7 @@
 use super::aabb::AABB;
 use super::flip_normals::FlipNormals;
-use super::hitable::{HitRecord, Hitable};
-use super::hitable_list::HitableList;
+use super::hittable::{HitRecord, Hittable};
+use super::hittable_list::HittableList;
 use super::rect::{XYRect, XZRect, YZRect};
 use crate::materials::Material;
 
@@ -12,12 +12,13 @@ use std::sync::Arc;
 pub struct BoxObject {
     p_min: Vec3,
     p_max: Vec3,
-    faces: HitableList,
+    faces: HittableList,
 }
 
 impl BoxObject {
-    pub fn new(p0: Vec3, p1: Vec3, material: Arc<Material>) -> Self {
-        let mut faces = HitableList::new();
+    #[allow(dead_code)]
+    pub fn new(p0: Vec3, p1: Vec3, material: Arc<dyn Material>) -> Self {
+        let mut faces = HittableList::new();
         faces.push(Arc::new(XYRect::new(
             p0.0,
             p0.1,
@@ -75,11 +76,11 @@ impl BoxObject {
     }
 }
 
-impl Hitable for BoxObject {
+impl Hittable for BoxObject {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         self.faces.hit(r, t_min, t_max)
     }
-    fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
+    fn bounding_box(&self, _t0: f32, _t1: f32) -> Option<AABB> {
         Some(AABB::new(&self.p_min, &self.p_max))
     }
 }

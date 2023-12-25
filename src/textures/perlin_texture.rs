@@ -7,6 +7,7 @@ pub struct PerlinTexture {
 }
 
 impl PerlinTexture {
+    #[allow(dead_code)]
     pub fn new() -> Self {
         Self {
             noise: Perlin::new(),
@@ -15,7 +16,7 @@ impl PerlinTexture {
 }
 
 impl Texture for PerlinTexture {
-    fn value(&self, u: f32, v: f32, p: &Vec3) -> Vec3 {
+    fn value(&self, _u: f32, _v: f32, p: &Vec3) -> Vec3 {
         Vec3(1.0, 1.0, 1.0) * self.noise.noise(p)
     }
 }

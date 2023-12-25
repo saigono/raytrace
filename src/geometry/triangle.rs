@@ -1,5 +1,5 @@
-use super::aabb::{surrounding_box, AABB};
-use super::hitable::{HitRecord, Hitable};
+use super::aabb::AABB;
+use super::hittable::{HitRecord, Hittable};
 use crate::linalg::{Ray, Vec3};
 use crate::materials::Material;
 
@@ -10,7 +10,7 @@ pub struct Triangle {
     n_index: [usize; 3],
     vertices: Arc<Vec<Vec3>>,
     normals: Arc<Vec<Vec3>>,
-    material: Arc<Material>,
+    material: Arc<dyn Material>,
 }
 
 impl Triangle {
@@ -23,7 +23,7 @@ impl Triangle {
         n2: usize,
         vertices: Arc<Vec<Vec3>>,
         normals: Arc<Vec<Vec3>>,
-        material: Arc<Material>,
+        material: Arc<dyn Material>,
     ) -> Self {
         Self {
             v_index: [v0, v1, v2],
@@ -53,7 +53,7 @@ fn fmin(a: f32, b: f32) -> f32 {
     }
 }
 
-impl Hitable for Triangle {
+impl Hittable for Triangle {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let e1 = self.vertices[self.v_index[1]] - self.vertices[self.v_index[0]];
         let e2 = self.vertices[self.v_index[2]] - self.vertices[self.v_index[0]];
@@ -92,7 +92,7 @@ impl Hitable for Triangle {
             Some(HitRecord::new(t, u, v, p, normal, self.material.clone()))
         }
     }
-    fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
+    fn bounding_box(&self, _t0: f32, _t1: f32) -> Option<AABB> {
         let min = Vec3::new(
             fmin(
                 self.vertices[self.v_index[0]][0],
@@ -150,7 +150,7 @@ pub struct TriangleMesh {
     normals: Arc<Vec<Vec3>>,
     v_index: Vec<usize>,
     n_index: Vec<usize>,
-    material: Arc<Material>,
+    material: Arc<dyn Material>,
 }
 
 impl TriangleMesh {
@@ -160,7 +160,7 @@ impl TriangleMesh {
         normals: Arc<Vec<Vec3>>,
         v_index: Vec<usize>,
         n_index: Vec<usize>,
-        material: Arc<Material>,
+        material: Arc<dyn Material>,
     ) -> Self {
         Self {
             n_triangles: n_triangles,
@@ -192,7 +192,7 @@ impl<'a> Iterator for TriangleMeshIterator<'a> {
         if self.cnt >= self.inner.n_triangles {
             None
         } else {
-            let normal = (self.inner.normals[self.inner.n_index[self.cnt * 3] - 1]
+            let _normal = (self.inner.normals[self.inner.n_index[self.cnt * 3] - 1]
                 + self.inner.normals[self.inner.n_index[self.cnt * 3 + 1] - 1]
                 + self.inner.normals[self.inner.n_index[self.cnt * 3 + 2] - 1])
                 / 3.0;

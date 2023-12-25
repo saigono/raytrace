@@ -1,16 +1,17 @@
 use super::aabb::AABB;
-use super::hitable::{HitRecord, Hitable};
+use super::hittable::{HitRecord, Hittable};
 use crate::linalg::{Ray, Vec3};
 
 use std::sync::Arc;
 
 pub struct Translation {
-    hitable: Arc<Hitable>,
+    hitable: Arc<dyn Hittable>,
     offset: Vec3,
 }
 
 impl Translation {
-    pub fn new(hitable: Arc<Hitable>, offset: Vec3) -> Self {
+    #[allow(dead_code)]
+    pub fn new(hitable: Arc<dyn Hittable>, offset: Vec3) -> Self {
         Self {
             hitable: hitable,
             offset: offset,
@@ -18,7 +19,7 @@ impl Translation {
     }
 }
 
-impl Hitable for Translation {
+impl Hittable for Translation {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let moved = Ray::new(r.origin - self.offset, r.direction, r.time);
         match self.hitable.hit(&moved, t_min, t_max) {
@@ -42,14 +43,15 @@ impl Hitable for Translation {
 }
 
 pub struct YRotation {
-    hitable: Arc<Hitable>,
+    hitable: Arc<dyn Hittable>,
     cos_theta: f32,
     sin_theta: f32,
     bbox: AABB,
 }
 
 impl YRotation {
-    pub fn new(hitable: Arc<Hitable>, angle: f32) -> Self {
+    #[allow(dead_code)]
+    pub fn new(hitable: Arc<dyn Hittable>, angle: f32) -> Self {
         let radians = (std::f32::consts::PI / 180.0) * angle;
         let sin_theta = radians.sin();
         let cos_theta = radians.cos();
@@ -101,7 +103,7 @@ impl YRotation {
     }
 }
 
-impl Hitable for YRotation {
+impl Hittable for YRotation {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let mut origin = r.origin.clone();
         let mut direction = r.direction.clone();
@@ -130,7 +132,7 @@ impl Hitable for YRotation {
             None => None,
         }
     }
-    fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
+    fn bounding_box(&self, _t0: f32, _t1: f32) -> Option<AABB> {
         Some(self.bbox)
     }
 }

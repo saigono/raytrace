@@ -1,5 +1,5 @@
 use super::aabb::AABB;
-use super::hitable::{HitRecord, Hitable};
+use super::hittable::{HitRecord, Hittable};
 use crate::materials::Isotropic;
 use crate::textures::Texture;
 
@@ -8,13 +8,18 @@ use crate::linalg::{Ray, Vec3};
 use std::sync::Arc;
 
 pub struct ConstantMedium {
-    boundary: Arc<Hitable>,
+    boundary: Arc<dyn Hittable>,
     density: f32,
     phase_function: Arc<Isotropic>,
 }
 
 impl ConstantMedium {
-    pub fn new(boundary: Arc<Hitable>, density: f32, phase_function: Arc<Texture>) -> Self {
+    #[allow(dead_code)]
+    pub fn new(
+        boundary: Arc<dyn Hittable>,
+        density: f32,
+        phase_function: Arc<dyn Texture>,
+    ) -> Self {
         Self {
             boundary: boundary,
             density: density,
@@ -23,7 +28,7 @@ impl ConstantMedium {
     }
 }
 
-impl Hitable for ConstantMedium {
+impl Hittable for ConstantMedium {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         match self.boundary.hit(r, std::f32::MIN, std::f32::MAX) {
             Some(mut rec1) => match self.boundary.hit(r, rec1.t + 0.0001, std::f32::MAX) {

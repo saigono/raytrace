@@ -8,6 +8,7 @@ pub struct ImageTexture {
 }
 
 impl ImageTexture {
+    #[allow(dead_code)]
     pub fn new(data: &[u8], width: usize, height: usize) -> Self {
         Self {
             data: Vec::from(data),
@@ -18,7 +19,7 @@ impl ImageTexture {
 }
 
 impl Texture for ImageTexture {
-    fn value(&self, u: f32, v: f32, p: &Vec3) -> Vec3 {
+    fn value(&self, u: f32, v: f32, _p: &Vec3) -> Vec3 {
         let mut i = (u * (self.width as f32)) as i32;
         let mut j = ((1.0 - v) * (self.height as f32) - 0.001) as i32;
         if i < 0 {

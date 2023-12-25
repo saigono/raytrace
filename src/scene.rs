@@ -1,7 +1,7 @@
 use crate::camera::Camera;
 use crate::geometry::bvh_node::BVHNode;
-use crate::geometry::hitable::Hitable;
-use crate::geometry::hitable_list::HitableList;
+use crate::geometry::hittable::Hittable;
+use crate::geometry::hittable_list::HittableList;
 use crate::geometry::sphere::Sphere;
 use crate::geometry::triangle::TriangleMesh;
 use crate::linalg::Vec3;
@@ -11,7 +11,6 @@ use crate::textures::texture::Texture;
 use crate::textures::{CheckerTexture, ConstantTexture};
 
 use std::collections::HashMap;
-use std::error::Error;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Read};
 use std::path::Path;
@@ -20,9 +19,9 @@ use std::vec::Vec;
 
 pub struct Scene {
     pub camera: Camera,
-    pub shapes: Vec<Arc<Hitable>>,
-    pub materials: HashMap<String, Arc<Material>>,
-    pub textures: HashMap<String, Arc<Texture>>,
+    pub shapes: Vec<Arc<dyn Hittable>>,
+    pub materials: HashMap<String, Arc<dyn Material>>,
+    pub textures: HashMap<String, Arc<dyn Texture>>,
 }
 
 impl Scene {
@@ -41,7 +40,7 @@ impl Scene {
         let display = path.display();
 
         let mut file = match File::open(&path) {
-            Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+            Err(why) => panic!("couldn't open {}: {}", display, why.to_string()),
             Ok(file) => file,
         };
         let mut source = String::new();
@@ -87,20 +86,20 @@ fn build_camera_from_json(data: &json::JsonValue) -> Camera {
     )
 }
 
-fn build_textures_from_json(data: &json::JsonValue) -> HashMap<String, Arc<Texture>> {
+fn build_textures_from_json(data: &json::JsonValue) -> HashMap<String, Arc<dyn Texture>> {
     let mut textures = HashMap::new();
 
     for (name, texture_data) in data.entries() {
         let t_type = texture_data["type"].as_str().unwrap();
-        let texture: Arc<Texture> = match t_type {
+        let texture: Arc<dyn Texture> = match t_type {
             "constant" => Arc::new(ConstantTexture::new(build_vector_from_json(
                 &texture_data["color"],
             ))),
             "checker" => {
                 let odd_name = String::from(texture_data["odd"].as_str().unwrap());
                 let even_name = String::from(texture_data["even"].as_str().unwrap());
-                let odd: &Arc<Texture> = textures.get(&odd_name).unwrap();
-                let even: &Arc<Texture> = textures.get(&even_name).unwrap();
+                let odd: &Arc<dyn Texture> = textures.get(&odd_name).unwrap();
+                let even: &Arc<dyn Texture> = textures.get(&even_name).unwrap();
                 Arc::new(CheckerTexture::new(odd.clone(), even.clone()))
             }
             _ => panic!("Unknown texture type"),
@@ -113,28 +112,28 @@ fn build_textures_from_json(data: &json::JsonValue) -> HashMap<String, Arc<Textu
 
 fn build_materials_from_json(
     data: &json::JsonValue,
-    textures: &HashMap<String, Arc<Texture>>,
-) -> HashMap<String, Arc<Material>> {
+    textures: &HashMap<String, Arc<dyn Texture>>,
+) -> HashMap<String, Arc<dyn Material>> {
     let mut materials = HashMap::new();
 
     for (name, material_data) in data.entries() {
         let m_type = material_data["type"].as_str().unwrap();
-        let material: Arc<Material> = match m_type {
+        let material: Arc<dyn Material> = match m_type {
             "dielectric" => Arc::new(Dielectric::new(material_data["ref_idx"].as_f32().unwrap())),
             "diffuse_light" => {
                 let tex_name = String::from(material_data["emit_tex"].as_str().unwrap());
-                let emit_tex: &Arc<Texture> = textures.get(&tex_name).unwrap();
+                let emit_tex: &Arc<dyn Texture> = textures.get(&tex_name).unwrap();
                 Arc::new(DiffuseLight::new(emit_tex.clone()))
             }
             "lambertian" => {
                 let tex_name = String::from(material_data["albedo"].as_str().unwrap());
-                let tex: &Arc<Texture> = textures.get(&tex_name).unwrap();
+                let tex: &Arc<dyn Texture> = textures.get(&tex_name).unwrap();
                 Arc::new(Lambertian::new(tex.clone()))
             }
             "metal" => {
                 let tex_name = String::from(material_data["albedo"].as_str().unwrap());
                 let fuzz = material_data["fuzz"].as_f32().unwrap();
-                let tex: &Arc<Texture> = textures.get(&tex_name).unwrap();
+                let tex: &Arc<dyn Texture> = textures.get(&tex_name).unwrap();
                 Arc::new(Metal::new(tex.clone(), fuzz))
             }
             _ => panic!("Unknown material type"),
@@ -147,15 +146,15 @@ fn build_materials_from_json(
 
 fn build_shapes_from_json(
     data: &json::JsonValue,
-    materials: &HashMap<String, Arc<Material>>,
-) -> Vec<Arc<Hitable>> {
+    materials: &HashMap<String, Arc<dyn Material>>,
+) -> Vec<Arc<dyn Hittable>> {
     let mut shapes = Vec::new();
     for shape_data in data.members() {
         let s_type = shape_data["type"].as_str().unwrap();
-        let shape: Arc<Hitable> = match s_type {
+        let shape: Arc<dyn Hittable> = match s_type {
             "sphere" => {
                 let mat_name = String::from(shape_data["material"].as_str().unwrap());
-                let mat: &Arc<Material> = materials.get(&mat_name).unwrap();
+                let mat: &Arc<dyn Material> = materials.get(&mat_name).unwrap();
                 Arc::new(Sphere::new(
                     build_vector_from_json(&shape_data["center"]),
                     shape_data["radius"].as_f32().unwrap(),
@@ -174,12 +173,12 @@ fn build_shapes_from_json(
             // }
             "triangle_mesh" => {
                 let mat_name = String::from(shape_data["material"].as_str().unwrap());
-                let mat: &Arc<Material> = materials.get(&mat_name).unwrap();
+                let mat: &Arc<dyn Material> = materials.get(&mat_name).unwrap();
                 let triangle_mesh = build_triangle_mesh_from_obj(
                     &shape_data["filename"].as_str().unwrap(),
                     mat.clone(),
                 );
-                let mut hl = HitableList::new();
+                let mut hl = HittableList::new();
                 for t in triangle_mesh.iter() {
                     hl.push(Arc::new(t));
                 }
@@ -192,12 +191,12 @@ fn build_shapes_from_json(
     shapes
 }
 
-fn build_triangle_mesh_from_obj(path_to_file: &str, material: Arc<Material>) -> TriangleMesh {
+fn build_triangle_mesh_from_obj(path_to_file: &str, material: Arc<dyn Material>) -> TriangleMesh {
     let path = Path::new(path_to_file);
     let display = path.display();
 
     let file = match File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Err(why) => panic!("couldn't open {}: {}", display, why.to_string()),
         Ok(file) => file,
     };
 

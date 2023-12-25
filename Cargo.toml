@@ -2,7 +2,7 @@
 name = "raytrace"
 version = "0.1.0"
 authors = ["Danil Ineev"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 png = "0.14.0"

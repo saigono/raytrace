@@ -1,6 +1,6 @@
 use super::material::Material;
 use super::utils::reflect;
-use crate::geometry::hitable::HitRecord;
+use crate::geometry::hittable::HitRecord;
 use crate::linalg::{Ray, Vec3};
 use crate::random::utils::random_in_unit_sphere;
 use crate::textures::Texture;
@@ -8,12 +8,12 @@ use crate::textures::Texture;
 use std::sync::Arc;
 
 pub struct Metal {
-    albedo: Arc<Texture>,
+    albedo: Arc<dyn Texture>,
     fuzz: f32,
 }
 
 impl Metal {
-    pub fn new(albedo: Arc<Texture>, fuzz: f32) -> Self {
+    pub fn new(albedo: Arc<dyn Texture>, fuzz: f32) -> Self {
         let clamped_fuzz: f32;
         if fuzz < 1.0 {
             clamped_fuzz = fuzz;

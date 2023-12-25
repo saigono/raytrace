@@ -12,7 +12,7 @@ impl ConstantTexture {
 }
 
 impl Texture for ConstantTexture {
-    fn value(&self, u: f32, v: f32, p: &Vec3) -> Vec3 {
+    fn value(&self, _u: f32, _v: f32, _p: &Vec3) -> Vec3 {
         self.color
     }
 }
